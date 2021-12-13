@@ -1,32 +1,30 @@
 version: "3.1"
-networks: 
+networks:
   userauditnetwork:
 services:
   web:
     image: nginx:stable-alpine
     container_name: webserver
-    ports: 
+    ports:
       - "8080:80"
-    volumes: 
+    volumes:
       - .:/var/www/html
-    depends_on: 
+    depends_on:
       - php
-    networks: 
+    networks:
       - userauditnetwork
     container_name: UserAudit
     volumes:
       - .:/var/www/html
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-    ports:
-      - "8080:80"
   php:
-    build: 
-      context: . 
+    build:
+      context: .
       dockerfile: Dockerfile
-    networks: 
+    networks:
       - userauditnetwork
     container_name: php
-    volumes: 
+    volumes:
       - .:/var/www/html
-    ports: 
+    ports:
       - "9000:9000"

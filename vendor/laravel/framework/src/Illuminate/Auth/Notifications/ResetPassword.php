@@ -59,19 +59,41 @@ class ResetPassword extends Notification
      */
     public function toMail($notifiable)
     {
+        $url = $this->resetUrl($notifiable);
+
         if (static::$toMailCallback) {
-            return call_user_func(static::$toMailCallback, $notifiable, $this->token);
+            return call_user_func(static::$toMailCallback, $notifiable, $this->token, $url);
         }
 
+        return $this->buildMailMessage($url);
+    }
+
+    /**
+     * Get the password reset URL for the given notifiable.
+     *
+     * @param  mixed  $notifiable
+     * @return string
+     */
+    protected function resetUrl($notifiable)
+    {
         if (static::$createUrlCallback) {
-            $url = call_user_func(static::$createUrlCallback, $notifiable, $this->token);
+            return call_user_func(static::$createUrlCallback, $notifiable, $this->token);
         } else {
-            $url = url(route('password.reset', [
+            return url(route('password.reset', [
                 'token' => $this->token,
                 'email' => $notifiable->getEmailForPasswordReset(),
             ], false));
         }
+    }
 
+    /**
+     * Get the reset password notification mail message for the given URL.
+     *
+     * @param  string  $url
+     * @return \Illuminate\Notifications\Messages\MailMessage
+     */
+    protected function buildMailMessage($url)
+    {
         return (new MailMessage)
             ->subject(Lang::get('Reset Password Notification'))
             ->line(Lang::get('You are receiving this email because we received a password reset request for your account.'))

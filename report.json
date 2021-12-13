@@ -1,0 +1,128 @@
+﻿{
+    "ReportServer":  "http://152.111.69.19/wwreport/",
+    "UserName":  "stuart.kinnear",
+    "ComputerName":  "02CORV-82GLDRJD",
+    "ReportDate":  "2021-12-09 14:46",
+    "WWsettings":  {
+                       "WWSettingsPackageVersion":  {
+                                                        "Version":  "3.0"
+                                                    },
+                       "ServerEntries":  {
+                                             "WeekliesCPT":  "http://mags-cpt.media24.com/WeekliesCPT/index.php",
+                                             "Lifestyle":  "http://mags-cpt.media24.com/Lifestyle/index.php"
+                                         },
+                       "ApplicationMappings":  {
+                                                   "indd":  "C:\\Program Files\\Adobe\\Adobe InDesign CC 2019\\InDesign.exe",
+                                                   "indt":  "C:\\Program Files\\Adobe\\Adobe InDesign CC 2019\\InDesign.exe",
+                                                   "wcml":  "C:\\Program Files\\Adobe\\Adobe Incopy CC 2019\\Incopy.exe",
+                                                   "psd":  "C:\\Program Files\\Adobe\\Adobe Photoshop CC 2019\\Photoshop.exe",
+                                                   "jpg":  "C:\\Program Files\\Adobe\\Adobe Photoshop CC 2019\\Photoshop.exe",
+                                                   "tif":  "C:\\Program Files\\Adobe\\Adobe Photoshop CC 2019\\Photoshop.exe",
+                                                   "eps":  "C:\\Program Files\\Adobe\\Adobe Photoshop CC 2019\\Photoshop.exe"
+                                               }
+                   },
+    "WoodwingSoftwareInRegistry":  [
+                                       {
+                                           "Name":  "WoodWing Studio for InDesign and InCopy 2020",
+                                           "Version":  "15.2.0.49"
+                                       },
+                                       {
+                                           "Name":  "Content Station",
+                                           "Version":  "9.8.317"
+                                       }
+                                   ],
+    "AdobeSoftwareOnDrive":  {
+                                 "InDesign":  {
+                                                  "Application":  "C:\\Program Files\\Adobe\\Adobe InDesign 2020\\InDesign.exe",
+                                                  "Version":  "15.1.3.302"
+                                              },
+                                 "InCopy":  {
+                                                "Application":  "C:\\Program Files\\Adobe\\Adobe InCopy 2020\\InCopy.exe",
+                                                "Version":  "15.1.3.302"
+                                            }
+                             },
+    "Mappings":  [
+                     {
+                         "Status":  0,
+                         "LocalPath":  "P:",
+                         "RemotePath":  "\\\\02cpt-fwslab01\\pilot01"
+                     },
+                     {
+                         "Status":  0,
+                         "LocalPath":  "T:",
+                         "RemotePath":  "\\\\152.111.69.113\\TuisHome"
+                     },
+                     {
+                         "Status":  0,
+                         "LocalPath":  "W:",
+                         "RemotePath":  "\\\\02cpt-corefs01.m24.media24.com\\Books"
+                     },
+                     {
+                         "Status":  0,
+                         "LocalPath":  "X:",
+                         "RemotePath":  "\\\\02rnb-mag01.m24.media24.com\\TVPlus"
+                     },
+                     {
+                         "Status":  0,
+                         "LocalPath":  "Y:",
+                         "RemotePath":  "\\\\02rnb-mag01.m24.media24.com\\FNT"
+                     },
+                     {
+                         "Status":  6,
+                         "LocalPath":  "L:",
+                         "RemotePath":  "\\\\152.111.69.120\\cptconvCC"
+                     },
+                     {
+                         "Status":  6,
+                         "LocalPath":  "Z:",
+                         "RemotePath":  "\\\\02rnb-mag01.m24.media24.com\\FNT"
+                     }
+                 ],
+    "Shortcuts":  [
+                      {
+                          "Name":  "Adobe Acrobat DC.lnk"
+                      },
+                      {
+                          "Name":  "Adobe Creative Cloud.lnk"
+                      },
+                      {
+                          "Name":  "Adobe InCopy 2020.lnk"
+                      },
+                      {
+                          "Name":  "Adobe InDesign 2020.lnk"
+                      },
+                      {
+                          "Name":  "Content Station.lnk"
+                      },
+                      {
+                          "Name":  "FotoStation Pro 8.0.lnk"
+                      },
+                      {
+                          "Name":  "Google Chrome.lnk"
+                      },
+                      {
+                          "Name":  "Microsoft Edge.lnk"
+                      },
+                      {
+                          "Name":  "Revo Uninstaller.lnk"
+                      },
+                      {
+                          "Name":  "TeamViewer.lnk"
+                      },
+                      {
+                          "Name":  "VLC media player.lnk"
+                      },
+                      {
+                          "Name":  "WinSCP.lnk"
+                      },
+                      {
+                          "Name":  "Woodwing Studio Lifestyle.lnk"
+                      }
+                  ],
+    "InDesignStandardiser":  {
+                                 "Version":  [
+                                                 "@{Version=1.0.0}",
+                                                 "@{Version=1.1}"
+                                             ]
+                             }
+}

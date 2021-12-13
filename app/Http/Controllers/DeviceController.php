@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use App\Device;
+use Session;
 
 class DeviceController extends Controller
 {
@@ -19,7 +19,7 @@ class DeviceController extends Controller
         foreach (Device::all() as $device) {
             \array_push($device_reports, $device);
         }
-        return view('device_reports_index')->with('device_reports', $device_reports);
+        return view('device_index')->with('device_reports', $device_reports);
     }
 
     /**
@@ -29,7 +29,7 @@ class DeviceController extends Controller
      */
     public function create()
     {
-        return view('create_device_report');
+        return view('device_create');
     }
 
     /**
@@ -40,7 +40,12 @@ class DeviceController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $device = New Device;
+        $device->username = $request->username;
+        $device->computername = $request->devicename;
+        $device->reportjson = "none";
+        $device->save();
+        return redirect('/');
     }
 
     /**
@@ -49,10 +54,10 @@ class DeviceController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function view($id)
     {
-        $device_details = find_or_fail($id);
-        return view('show_device_report')->with($device_details);
+        $device = Device::findOrFail($id);
+        return view('view_device')->with('device', $device);
     }
 
     /**
@@ -86,6 +91,8 @@ class DeviceController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $device = Device::where('id', $id)->firstorfail()->delete();
+        Session::flash('message', 'Device Deleted!');
+        return redirect('/');
     }
 }

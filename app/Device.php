@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Device extends Model
 {
-    protected $primaryKey = 'device_id';
-    protected $fillable = ['device_name', 'last_user', 'report'];
+    protected $primaryKey = 'id';
+    protected $fillable = [
+        'username', 'computername', 'os', 'devicetype', 'licences', 'reportjson'
+    ];
 }
