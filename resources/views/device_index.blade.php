@@ -10,32 +10,37 @@
     @endcomponent
 @endsection
 @section('content')
-    @if (session('message'))
-    <div class="alert alert-warning">
-        {{ session('message') }}
-    </div>
-    @endif
-    <div class="container-fluid">
-        <h2 class="heading">Devices</h2>
-            <div class="table_container">
-                <table class="item_table">
-                    <tr>
-                        <th>Computer Name</th>
-                        <th>Device Type</th>
-                        <th>Last Activity Date</th>
-                        <th>Assigned User</th>
-                    </tr>
-                    @foreach ($device_reports as $entry)
-                    <tr>
-                        <td><a href="/device/view/{{$entry->id}}">{{$entry->computername}}</a></td>
-                        <td>{{$entry->devicetype}}</td>
-                        <td>{{$entry->updated_at}}</td>
-                        <td>{{$entry->username}}</td>
-                    </tr>
-                    @endforeach
-                </table>
-            </div>
-            <button onclick="document.location='/device/create'">Create a new device</button>
+@if (session('message'))
+<div class="alert alert-warning">
+    {{ session('message') }}
+</div>
+@endif
+<div class="container-fluid">
+    <div class="heading">
+        <div>
+            <h2>Devices <span class="badge badge-info"> {{$device_count}} </span></h2>
         </div>
+        <div>
+            <a class="btn btn-primary" href="/device/create" role="button">Add a new device</a>
+        </div>
+    </div>
+    <div>
+        <div class="device_list_grid_row">
+            <div class="list_grid_item"><a href="/device/index/?sortby=computername">Computer Name</a></div>
+            <div class="list_grid_item"><a href="/device/index/?sortby=device_model">Device Model</a></div>
+            <div class="list_grid_item"><a href="/device/index/?sortby=operating_system">Operating System</a></div>
+            <div class="list_grid_item"><a href="/device/index/?sortby=updated_at">Last Activity Date</a></div>
+            <div class="list_grid_item"><a href="/device/index/?sortby=assigned_user">Assigned User</a></div>
+        </div>
+        @foreach ($devices as $device)
+        <div class="device_list_grid_row">
+            <div class="list_grid_item"><a href="/device/view/{{$device->id}}">{{$device->computername}}</a></div>
+            <div class="list_grid_item">{{$device->device_model}}</div>
+            <div class="list_grid_item">{{$device->operating_system}}</div>
+            <div class="list_grid_item">{{$device->updated_at}}</div>
+            <div class="list_grid_item">{{$device->name}}</div>
+        </div>
+        @endforeach
+    </div>
 </div>
 @endsection

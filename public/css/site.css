@@ -24,7 +24,7 @@ a:active {
   border: 1pt solid lightgrey;
   border-radius: 5pt;
   overflow-y: auto;
-  max-height: 80vh;
+  max-height: 80%;
 }
 table{
   width: 100%;
@@ -44,13 +44,6 @@ th {
 th, td {
   padding: 6pt;
   font-size: 11pt;
-}
-tr:hover {
-  background-color: rgb(228, 229, 255);
-  cursor: pointer;
-}
-th:hover {
-  background-color: none;
 }
 a:hover {
   text-decoration: none;
@@ -96,4 +89,92 @@ a:hover {
 }
 .nav-item{
   padding-right: 1.6rem;
+}
+.navbar-text{
+  color: white;
+}
+.reporter-navbar{
+  display: flex;
+  vertical-align: top;
+}
+.report_list_grid_row{
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 4fr;
+  padding: 5pt;
+  border-bottom: 1pt solid lightgray;
+}
+.report_list_grid_item{
+  padding-left: 6pt;
+  padding-right: 6pt;
+  font-size: small;
+}
+.device_list_grid_row{
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  padding: 5pt;
+  border-bottom: 1pt solid lightgray;
+}
+.list_grid_item{
+  padding-left: 6pt;
+  padding-right: 6pt;
+  font-size: small;
+}
+.user_journal_list_grid_row{
+  display: grid;
+  grid-template-columns: 1fr 4fr 1fr;
+  padding: 5pt;
+  border-bottom: 1pt solid lightgray;
+}
+.journal_list_grid_row{
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 5fr;
+  padding: 6pt;
+  border-bottom: 1pt solid lightgray;
+}
+.journal_list_grid_item{
+  padding-left: 6pt;
+  padding-right: 6pt;
+  font-size: small;
+}
+.user_list_grid{
+  padding: 4pt;
+}
+.user_list_grid_row{
+  display: grid;
+  grid-template-columns: 1.5fr 1.5fr 2fr 1.5fr 2fr;
+  padding: 5pt;
+  border-bottom: 1pt solid lightgray;
+}
+.user_list_grid_row:hover{
+  background-color: rgb(229, 229, 229);
+}
+.user_list_grid_item{
+  padding-left: 6pt;
+  padding-right: 6pt;
+  font-size: small;
+}
+.toolbar-searchform {
+  vertical-align: middle;
+}
+.mini-search-button {
+  border-top-right-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+  height: 2.2rem;
+  width: 2.5rem;
+  border: none;
+  vertical-align: middle;
+  position: relative;
+  left: -3px;
+}
+.toolbar-search-input {
+  width: 20rem;
+  height: 2.2rem;
+  border-top-left-radius: 0.5rem;
+  border-bottom-left-radius: 0.5rem;
+  border: none;
+  vertical-align: middle;
+  padding: 6pt;
+}
+.toolbar-searchbox {
+  padding: 0px 10px 0px 10px;
 }

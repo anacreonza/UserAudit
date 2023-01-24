@@ -10,6 +10,9 @@ use Session;
 
 class ReportController extends Controller
 {
+    public function __construct() {
+        $this->middleware('auth');
+    }
     public function read($id){
         $report = Report::where('id', $id)->first();
         return view('report_viewer')->with('report', $report);
@@ -29,6 +32,7 @@ class ReportController extends Controller
             $device->reportjson = "none";
             $device->save();
         }
+        
     }
     public function index(){
         $reports = [];
@@ -42,5 +46,8 @@ class ReportController extends Controller
         $report = Report::where('id', $id)->firstorfail()->delete();
         Session::flash('message', 'Report Deleted!');
         return redirect('/report/index/');
+    }
+    public function cs_users(){
+        
     }
 }

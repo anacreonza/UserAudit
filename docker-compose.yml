@@ -4,11 +4,8 @@ networks:
 services:
   web:
     image: nginx:stable-alpine
-    container_name: webserver
     ports:
       - "8080:80"
-    volumes:
-      - .:/var/www/html
     depends_on:
       - php
     networks:
