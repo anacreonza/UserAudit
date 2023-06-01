@@ -64,9 +64,9 @@ class DeviceController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
-        $users = User::orderBy('name')->get();
+        $users = Client::orderBy('name')->get();
         return view('device_create')->with('users', $users);
     }
 
@@ -92,8 +92,9 @@ class DeviceController extends Controller
         $device->operating_system = $request->operating_system;
         $device->username = "None";
         $device->device_model = $request->device_model;
+        $device->machine_manifest = $request->machine_manifest;
         $device->save();
-        $user = User::where('id', $device->assigned_user_id)->first();
+        $user = Client::where('id', $device->assigned_user_id)->first();
         $user->device_id = $device->id;
         $user->save();
         $journal_entry = New JournalEntry;
@@ -113,7 +114,7 @@ class DeviceController extends Controller
     {
         $device = Device::findOrFail($id);
         $client = Client::where('id', $device->assigned_user_id)->first();
-        return view('device_view')->with('device', $device)->with('user', $client);
+        return view('device_view')->with('device', $device)->with('client', $client);
     }
 
     /**
@@ -125,8 +126,8 @@ class DeviceController extends Controller
     public function edit($id)
     {
         $device = Device::findOrFail($id);
-        $users = User::orderBy('name')->get();
-        return view('device_edit')->with('device', $device)->with('users', $users)->with('message', "Device $device->computername updated.");
+        $clients = Client::orderBy('name')->get();
+        return view('device_edit')->with('device', $device)->with('clients', $clients)->with('message', "Device $device->computername updated.");
     }
 
     /**
@@ -143,6 +144,7 @@ class DeviceController extends Controller
         $device->device_model = $request->device_model;
         $device->serial_no = $request->serial_no;
         $device->operating_system = $request->operating_system;
+        $device->machine_manifest = $request->device_manifest;
         // $device->comments = $request->comments;
         $device->save();
         return redirect("/device/view/$id")->with('message', "Device updated.");
@@ -159,6 +161,39 @@ class DeviceController extends Controller
         $device = Device::where('id', $id)->firstorfail()->delete();
         Session::flash('message', 'Device Deleted!');
         return redirect('/');
+    }
+    public function export_csv(){
+        $filename = "Devices.csv";
+        $devices = Device::all();
+        $headers = array(
+            "Content-type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=$filename",
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => 0
+        );
+        $columns = array("Computer Name", "Device Model", "Operating System", "Software Manifest", "Assigned User");
+        $callback = function() use($devices, $columns){
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+            foreach ($devices as $device) {
+                $row['Computer Name']       = $device->computername;
+                $row['Device Model']        = $device->device_model;
+                $row['Operating System']    = $device->operating_system;
+                $row['Software Manifest']   = $device->machine_manifest;
+                $assigned_user = Client::where('id', $device->assigned_user_id)->first();
+                if ($assigned_user){
+                    $row['Assigned User']  = $assigned_user->name;
+                } else {
+                    $row['Assigned User'] = "None";
+                }
+
+                fputcsv($file, array($row['Computer Name'], $row['Device Model'], $row['Operating System'], $row['Software Manifest'], $row['Assigned User']));
+            }
+
+            fclose($file);
+        };
+        return response()->stream($callback, 200, $headers);
     }
     public function retrieve_mac_details($serial){
         $columns = [

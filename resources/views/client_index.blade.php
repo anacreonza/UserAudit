@@ -20,8 +20,10 @@
             <div>
                 <h2>Clients <span class="badge badge-info"> {{$clientcount}} </span></h2>
             </div>
-            <div>
-                <a class="btn btn-primary" href="/client/create" role="button">New client</a>
+            <div class="list_links">
+                <a href="/client/create" role="button">Add a new client</a>
+                |
+                <a href="/client/export/csv">Export CSV</a>
             </div>
         </div>
         <div class="user_list_grid">
@@ -29,6 +31,7 @@
                 <div class="user_list_grid_item"><a href="/client/index/?sortby=name">Name</a></div>
                 <div class="user_list_grid_item"><a href="/client/index/?sortby=department">Department</a></div>
                 <div class="user_list_grid_item"><a href="/client/index/?sortby=role">Role</a></div>
+                <div class="user_list_grid_item"><a href="/client/index/?sortby=ww_user">Woodwing User?</a></div>
                 <div class="user_list_grid_item"><a href="/client/index/?sortby=updated_at">Last Activity Date</a></div>
                 <div class="user_list_grid_item"><a href="/client/index/?sortby=last_activity">Last Activity</a></div>
             </div>
@@ -37,8 +40,13 @@
                 <div class="user_list_grid_item"><a href="/client/view/{{$client->id}}">{{$client->name}}</a></div>
                 <div class="user_list_grid_item">{{$client->department}}</div>
                 <div class="user_list_grid_item">{{$client->role}}</div>
+                @if ($client->ww_user == 1)
+                <div class="user_list_grid_item">Yes</div>
+                @else
+                <div class="user_list_grid_item">No</div>
+                @endif
                 <div class="user_list_grid_item">{{$client->updated_at}}</div>
-                <div class="user_list_grid_item">{{$client->last_journal_entry["journal_entry"]}}</div>
+                <div class="user_list_grid_item">{{$client->journal_entry_preview}}</div>
             </div>
             @endforeach
         </div>

@@ -45,7 +45,11 @@
                 <select class="form-control" name="assigned_user_id">
                     <option value="0">No user allocated</option>
                     @foreach ($users as $user)
-                        <option value="{{$user->id}}">{{$user->name}}</option>
+                        <option value="{{$user->id}}">{{$user->name}}
+                        @if (isset($user_id))
+                            @if ($user_id == $user->id) selected @endif
+                        @endif
+                        </option>
                     @endforeach
                 </select>
             </div>

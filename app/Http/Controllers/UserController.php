@@ -74,6 +74,7 @@ class UserController extends Controller
         $user->department = $request->department;
         $user->role = $request->role;
         $user->comments = $request->comment;
+        $user->api_token = Str::random(60);
         $user->save();
         $journal_entry = New JournalEntry;
         $journal_entry->user_id = $user->id;

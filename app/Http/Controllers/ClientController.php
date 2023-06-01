@@ -45,7 +45,13 @@ class ClientController extends Controller
         }
         $clientlist = [];
         foreach (Client::orderBy($sortby, $sortorder)->get() as $client) {
-            $client->last_journal_entry = JournalEntry::where('user_id', $client->id)->get()->last();
+            $last_journal_entry = JournalEntry::where('user_id', $client->id)->get()->last();
+            if (strlen($last_journal_entry['journal_entry']) > 100){
+                $client->journal_entry_preview = substr($last_journal_entry['journal_entry'], 0, 95) . "...";
+            } else {
+                $client->journal_entry_preview = $last_journal_entry['journal_entry'];
+            }
+            
             \array_push($clientlist, $client);
         }
         $clientcount = Client::all()->count();
@@ -74,6 +80,7 @@ class ClientController extends Controller
         $client->department = $request->department;
         $client->role = $request->role;
         $client->comments = $request->comment;
+        $client->ww_user = $request->ww_user;
         $client->save();
         $journal_entry = New JournalEntry;
         $journal_entry->user_id = $client->id;
@@ -133,6 +140,7 @@ class ClientController extends Controller
         $client->department = $request->department;
         $client->role = $request->role;
         $client->comments = $request->comment;
+        $client->ww_user = $request->ww_user;
         $client->save();
         return redirect("/client/view/$id")->with('message', "Client updated.");
     }
@@ -169,8 +177,43 @@ class ClientController extends Controller
         $client->save();
         return redirect("/client/view/$id")->with('message', "$updated_fields fields updated.");
     }
+    public function export_csv(){
+        $filename = "Clients.csv";
+        $clients = Client::all();
+        $headers = array(
+            "Content-type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=$filename",
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => 0
+        );
+        $columns = array("Name", "Department", "Role", "Woodwing User", "Computer");
+        $callback = function() use($clients, $columns){
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+            foreach ($clients as $client) {
+                $row['Name']  = $client->name;
+                $row['Department']    = $client->department;
+                $row['Role']    = $client->role;
+                $ww_user = $client->ww_user ? "Yes" : "No";
+                $row['Woodwing User']  = $ww_user;
+                $assigned_device = Device::where('id', $client->device_id)->first();
+                if ($assigned_device){
+                    $device_name = $assigned_device->computername;
+                } else {
+                    $device_name = "None";
+                };
+                $row['Computer']  = $device_name;
+
+                fputcsv($file, array($row['Name'], $row['Department'], $row['Role'], $row['Woodwing User'], $row['Computer']));
+            }
+
+            fclose($file);
+        };
+        return response()->stream($callback, 200, $headers);
+    }
     public function delete($id){
-        $user = Client::where('id', $id)->firstorfail()->delete();
+        $user = Client::where('id', $id)->firstorfail()->delete() ;
         Session::flash('message', 'Client deleted!');
         return redirect('/client/index/');
     }

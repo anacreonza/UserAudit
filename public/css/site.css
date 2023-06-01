@@ -17,7 +17,12 @@ a:active {
 .heading{
   padding: 1rem 0rem;
   display: grid;
-  grid-template-columns: 8fr 1fr;
+  grid-template-columns: 5fr 2fr;
+  justify-content: end;
+}
+.list_links{
+  text-align: right;
+  font-size: 11pt;
 }
 .table_container {
   margin-bottom: 2rem;
@@ -108,9 +113,19 @@ a:hover {
   padding-right: 6pt;
   font-size: small;
 }
+.report_grid_row{
+  display: grid;
+  grid-template-columns: 1.5fr 6fr;
+  font-size: small;
+  padding-bottom: 5px;
+}
+.report_key_item{
+  text-align: right;
+  padding-right: 5px;
+}
 .device_list_grid_row{
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 0.8fr 0.9fr 1.1fr 1fr 1fr 1fr;
   padding: 5pt;
   border-bottom: 1pt solid lightgray;
 }
@@ -141,7 +156,7 @@ a:hover {
 }
 .user_list_grid_row{
   display: grid;
-  grid-template-columns: 1.5fr 1.5fr 2fr 1.5fr 2fr;
+  grid-template-columns: 1.5fr 1.5fr 2fr 1fr 1.5fr 2fr;
   padding: 5pt;
   border-bottom: 1pt solid lightgray;
 }

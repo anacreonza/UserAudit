@@ -35,7 +35,7 @@
                 <li>Contact No: {{$client->mobile}}</li>
                 @endif
                 @if ($device->computername == 'None')
-                <li>Assigned Device: None <a href="/device/create/">Create a device</a></li>
+                <li>Assigned Device: None <a href="/device/create/{{$client->id}}">Create a device</a></li>
                 @else
                 <li>Assigned Device: <a href="/device/view/{{$device->id}}">{{$device->computername}}</a></li>
                 <ul>
@@ -43,6 +43,9 @@
                     <li>Device Model: {{$device->device_model}}</li>
                     <li>Operating System: {{$device->operating_system}}</li>
                 </ul>
+                @endif
+                @if ($client->ww_user == 1)
+                <li>User is a Woodwing User</li>
                 @endif
                 <li>Comment: {{$client->comments}}</li>
             </ul>

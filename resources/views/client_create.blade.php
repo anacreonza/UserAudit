@@ -85,6 +85,17 @@
             </div>
             <div class="device_form_row">
                 <div class="device_form_row_label">
+                    <label for="ww_user">Woodwing User?:</label>
+                </div>
+                <div class="device_form_row_input">
+                    <select class="form-control" name="ww_user">
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </div>
+            </div>
+            <div class="device_form_row">
+                <div class="device_form_row_label">
                     <label for="role">Comment:</label>
                 </div>
                 <div>

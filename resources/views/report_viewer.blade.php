@@ -16,7 +16,7 @@
         </div>
         <div class="item-view-right">
             <h1>Report data</h1>
-            <pre>{{var_dump(json_decode($report->report_data, JSON_PRETTY_PRINT))}}</pre>
+            {!!$report->html_report!!}
         </div>
     </div>
     @endsection

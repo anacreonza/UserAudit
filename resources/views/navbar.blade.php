@@ -7,9 +7,9 @@
       <li class="nav-item">
         <a class="nav-link @if($activetab == "JournalEntries") active @endif" href="/journal_entry/index">Activity</a>
       </li>
-      <li class="nav-item">
+      {{-- <li class="nav-item">
         <a class="nav-link @if($activetab == "Reports") active @endif" href="/report/index/">Reports</a>
-      </li>
+      </li> --}}
       <li class="nav-item">
         <a class="nav-link @if($activetab == "Clients") active @endif" href="/client/index/">Clients</a>
       </li>
@@ -25,7 +25,8 @@
         @if ($activetab == "Devices") action="/devices/search/" @endif
         method="POST">
         @csrf
-        <input class="form-control mr-sm-2" value="{{$searchstring ?? ''}}" type="search" placeholder="Search" aria-label="Search" id="searchterm" name="searchterm" autocomplete="off" autofocus>
+        <input class="form-control mr-sm-2" value="{{$searchstring ?? ''}}" type="search" placeholder="@if($activetab == "Clients")Search clients @endif @if($activetab == "Devices")Search devices @endif"
+        aria-label="Search" id="searchterm" name="searchterm" autocomplete="off" autofocus>
         <button class="btn btn btn-light my-2 my-sm-0" type="submit">Search</button>
       </form>
     </div>

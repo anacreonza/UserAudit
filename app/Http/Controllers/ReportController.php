@@ -10,12 +10,34 @@ use Session;
 
 class ReportController extends Controller
 {
-    public function __construct() {
-        $this->middleware('auth');
-    }
     public function read($id){
         $report = Report::where('id', $id)->first();
+        $report_data = \json_decode($report->report_data);
+        $report->html_report = $this->printTree($report_data);
         return view('report_viewer')->with('report', $report);
+    }
+    function printTree($array) {
+        $output = "\t";
+        foreach ($array as $key=>$value) {
+            if (\is_string($key)){
+                $output .= "<div class='report_grid_row'><div class=\"report_key_item\"><b>".$key.": </b></div>";
+            } else {
+                $output .= "<div class='report_grid_row'><div class=\"report_key_item\"><b>"."</b></div>";
+            }
+            if (\is_string($value)){
+                $output .= "<div>" . $value . "</div>";
+            }
+            if (\is_object($value)){
+                $output .= "</div><div>" . $this->printTree($value) . "</div><div>";
+            }
+            if (\is_array($value)){
+                $output .= "</div><div>" . $this->printTree($value) . "</div><div>";
+            }
+            $output .= "</div>\n";
+            
+        }
+        // $output .= "</div>";
+        return $output;
     }
     public function store(Request $request){
         $report = new Report;
