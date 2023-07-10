@@ -34,6 +34,7 @@
             <div class="list_grid_item"><a href="/device/index/?sortby=machine_manifest">Device Software Manifest</a></div>
             <div class="list_grid_item"><a href="/device/index/?sortby=updated_at">Last Activity Date</a></div>
             <div class="list_grid_item"><a href="/device/index/?sortby=assigned_user">Assigned User</a></div>
+            <div class="list_grid_item"><a href="/device/index/?sortby=me_res_id">In Manage Engine?</a></div>
         </div>
         @foreach ($devices as $device)
         <div class="device_list_grid_row">
@@ -43,6 +44,11 @@
             <div class="list_grid_item">{{$device->machine_manifest}}</div>
             <div class="list_grid_item">{{$device->updated_at}}</div>
             <div class="list_grid_item">{{$device->name}}</div>
+            @if ($device->me_res_id)
+            <div class="list_grid_item"><span style="color: green">Yes</span></div>
+            @else
+            <div class="list_grid_item"><span style="color: red">No</span></div>
+            @endif
         </div>
         @endforeach
     </div>

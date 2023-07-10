@@ -13,7 +13,6 @@
                             {{ session('status') }}
                         </div>
                     @endif
-
                     {{ __('You are logged in!') }}
                     <ul>
                         <li><a href="/client/index/">Client Index</a></li>

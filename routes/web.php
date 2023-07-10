@@ -7,6 +7,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\JournalEntryController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\FileController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -29,6 +30,8 @@ Route::post('/device/store', [DeviceController::class, 'store']);
 Route::get('/device/view/{id}', [DeviceController::class, 'view']);
 Route::get('/device/delete/{id}', [DeviceController::class, 'destroy']);
 Route::get('/device/export/csv', [DeviceController::class, 'export_csv']);
+Route::get('/device/get_me_details/{device}', [DeviceController::class, 'get_device_details_from_manage_engine']);
+Route::get('/device/find_in_me/{ad_user}', [DeviceController::class, 'find_device_in_me_by_username']);
 
 // Client routes
 Route::get('/client/index', [ClientController::class, 'index']);
@@ -45,6 +48,8 @@ Route::get('/journal_entry/create/{id}', [JournalEntryController::class, 'create
 Route::post('/journal_entry/store/{id}', [JournalEntryController::class, 'store']);
 Route::delete('/journal_entry/delete/{id}', [JournalEntryController::class, 'delete']);
 Route::get('/journal_entry/index', [JournalEntryController::class, 'index']);
+// File routes
+Route::get('/download/{id}', [FileController::class, 'download']);
 // REST endpoints for reports
 Route::get('/report/index', [ReportController::class, 'index']);
 Route::get('/report/view/{id}', [ReportController::class, 'read']);
@@ -55,6 +60,8 @@ Route::post('/clients/search/', [SearchController::class, 'filter_clients']);
 Route::post('/reports/search/', [SearchController::class, 'filter_reports']);
 Route::post('/devices/search/', [SearchController::class, 'filter_devices']);
 Route::post('/journal_entries/search/', [SearchController::class, 'filter_journalentries']);
+Route::get('/lookup', [SearchController::class, 'lookup']);
+Route::post('/lookup/item/', [SearchController::class, 'lookup_item']);
 // External request endpoints
 Route::get('/retrieve/mr/{serial}', [DeviceController::class, 'retrieve_mac_details']);
 

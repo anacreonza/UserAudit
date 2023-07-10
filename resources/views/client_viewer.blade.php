@@ -19,7 +19,11 @@
         <div class="item-view-left">
             <p><a href="/client/edit/{{$client->id}}">Edit user</a></p>
             <p><a href="/client/lookup/{{$client->id}}">Get User details from LDAP</a></p>
+            @if ($device->computername == 'None')
+            <p><a href="/device/find_in_me/{{$client->ad_user}}">Find device in Manage Engine</a></p>
+            @else
             <p><a href="/client/delete/{{$client->id}}">Delete user</a></p>
+            @endif
         </div>
         <div class="item-view-right">
             <h1>{{$client->name}}</h1>
@@ -35,7 +39,7 @@
                 <li>Contact No: {{$client->mobile}}</li>
                 @endif
                 @if ($device->computername == 'None')
-                <li>Assigned Device: None <a href="/device/create/{{$client->id}}">Create a device</a></li>
+                <li>Assigned Device: None   </li>
                 @else
                 <li>Assigned Device: <a href="/device/view/{{$device->id}}">{{$device->computername}}</a></li>
                 <ul>
@@ -61,7 +65,12 @@
                         @foreach ($journal_entries as $journal_entry)
                             <div class="user_journal_list_grid_row">
                                 <div class="journal_list_grid_item">{{$journal_entry->updated_at}}</div>
-                                <div class="journal_list_grid_item">{{$journal_entry->journal_entry}}</div>
+                                <div>
+                                    <div class="journal_list_grid_item">{{$journal_entry->journal_entry}}</div>
+                                    @if(isset($journal_entry->attachment))
+                                    <div class="journal_list_grid_item">• <a href="/download/{{$journal_entry->attachment}}" alt="alt-text">download attachment</a></div>
+                                    @endif
+                                </div>
                                 <div class="journal_list_grid_item">
                                     <form method="post" action="/journal_entry/delete/{{$journal_entry->id}}"> 
                                         @csrf

@@ -7,8 +7,10 @@ use App\Client;
 use App\Device;
 use App\JournalEntry;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Session;
 use LdapRecord\Models\ActiveDirectory\User as LDAPUser;
+use Config;
 
 class ClientController extends Controller
 {
@@ -51,7 +53,12 @@ class ClientController extends Controller
             } else {
                 $client->journal_entry_preview = $last_journal_entry['journal_entry'];
             }
-            
+            $assigned_device = Device::where('id', $client->device_id)->first();
+            if (isset($assigned_device->computername)){
+                $client->assigned_device_name = $assigned_device->computername;
+            } else {
+                $client->assigned_device_name = "None";
+            }
             \array_push($clientlist, $client);
         }
         $clientcount = Client::all()->count();
@@ -68,9 +75,7 @@ class ClientController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|unique:clients',
-            'ad_user' => 'required|unique:clients',
-            'email' => 'required|unique:clients',
+            'ad_user' => 'required|unique:clients'
         ]);
         $client = New Client;
         $client->name = $request->name;
@@ -87,13 +92,19 @@ class ClientController extends Controller
         if (Auth::check()) {
             $journal_entry->admin_id = Auth::id();
         }
-        $journal_entry->journal_entry = "Client $request->name created.";
+        if ($client->device_id){
+            $device = Device::where('id', $client->device_id)->first();
+            $device->assigned_user_id = $client->id;
+            $device->save();
+        }
+        $updated_fields = $this->update_client_details_from_ldap_by_id($client->id);
+        $journal_entry->journal_entry = "Client $request->ad_user created.";
         $journal_entry->save();
-        return redirect('/client/index')->with('message', "New client $request->name created.");
+        return redirect('/client/index')->with('message', "New client $request->ad_user created.");
     }
     public function view($id){
         $client = Client::where('id', $id)->first();
-        $journal_entries = JournalEntry::where('user_id', $id)->get();
+        $journal_entries = JournalEntry::where('user_id', $id)->orderBy('updated_at', 'desc')->get();
         $assigned_device = Device::where('id', $client->device_id)->first();
         if ($assigned_device){
             $device = $assigned_device;
@@ -142,40 +153,48 @@ class ClientController extends Controller
         $client->comments = $request->comment;
         $client->ww_user = $request->ww_user;
         $client->save();
+
+        $device = Device::where('id', $client->device_id)->first();
+        $device->assigned_user_id = $client->id;
+        $device->save();
+        
         return redirect("/client/view/$id")->with('message', "Client updated.");
     }
-    public function lookup($id){
+    public function update_client_details_from_ldap_by_id($id){
         $client = Client::where('id', $id)->firstorfail();
         $ldapclient = LDAPUser::where('sAMAccountName', '=', $client->ad_user)->get();
-
-        // $details = (object)[];
-        // $details->company = $ldapclient[0]->company[0];
-        // $details->manager = $ldapclient[0]->manager[0];
-        // $details->mobile = $ldapclient[0]->mobile[0];
-
-        if (!$ldapclient->count()){
-            return redirect("/client/view/$id")->with('message', "Unable to read details.");
-        }
-
         $updated_fields = 0;
-        if ($ldapclient[0]->cn){
+        if ($ldapclient[0]->cn && $client->name !== $ldapclient[0]->cn[0]){
             $client->name = $ldapclient[0]->cn[0];
             $updated_fields++;
         }
-        if ($ldapclient[0]->mail){
+        if ($ldapclient[0]->mail && $client->email !== $ldapclient[0]->mail){
             $client->email = $ldapclient[0]->mail[0];
             $updated_fields++;
         }
-        if ($ldapclient[0]->department){
+        if ($ldapclient[0]->department && $client->department !== $ldapclient[0]->department){
             $client->department = $ldapclient[0]->department[0];
             $updated_fields++;
         }
-        if ($ldapclient[0]->title){
+        if ($ldapclient[0]->title && $client->role !== $ldapclient[0]->title){
             $client->role = $ldapclient[0]->title[0];
             $updated_fields++;
         }
         $client->save();
-        return redirect("/client/view/$id")->with('message', "$updated_fields fields updated.");
+        return $updated_fields;
+    }
+    public function lookup($id){
+        $client = Client::where('id', $id)->firstorfail();
+        $ldapclient = LDAPUser::where('sAMAccountName', '=', $client->ad_user)->get();
+        $updated_fields = $this->update_client_details_from_ldap_by_id($id);
+        if (!$updated_fields){
+            return redirect("/client/view/$id")->with('message', "Unable to read details.");
+        }
+        if ($updated_fields > 0){
+            return redirect("/client/view/$id")->with('message', "$updated_fields fields updated.");
+        }else{
+            return redirect("/client/view/$id")->with('message', "Details already up to date.");
+        }
     }
     public function export_csv(){
         $filename = "Clients.csv";

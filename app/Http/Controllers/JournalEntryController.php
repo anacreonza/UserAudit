@@ -6,7 +6,9 @@ use App\JournalEntry;
 use Illuminate\Http\Request;
 use Session;
 use App\Client;
+use App\File;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class JournalEntryController extends Controller
 {
@@ -27,7 +29,6 @@ class JournalEntryController extends Controller
             ->leftJoin('users', 'journal_entries.admin_id', '=', 'users.id')
             ->get() as $entry)
             \array_push($journal_entries, $entry);
-        // var_dump($journal_entries);
         return view('journal_entry_index')->with('journal_entries', $journal_entries);
     }
 
@@ -57,7 +58,25 @@ class JournalEntryController extends Controller
         $journal_entry->journal_entry = $request->journal_entry;
         $journal_entry->user_id = $request->id;
         $journal_entry->admin_id = Auth::id();
+        if ($request->file('attachment')){
+            $attachment_file = $request->file('attachment')->store('attachment');
+            $original_file = $request->file('attachment');
+            $original_file_name = $original_file->getClientOriginalName();
+            $file = New File;
+            $file->user_id = $request->id;
+            $file->friendly_file_name = $original_file_name;
+            $file->journal_entry_id = 0;
+            $file->uploaded_by_admin_id = Auth::id();
+            $file->name = $attachment_file;
+            $file->save();
+            $journal_entry->attachment = $file->id;
+        }
         $journal_entry->save();
+        if ($request->file('attachment')){
+            $file->journal_entry_id = $journal_entry->id;
+            $file->save();
+        }
+
 
         // touch the client object so we know something happened
         $client = Client::where('id', $request->id)->first();
@@ -109,7 +128,12 @@ class JournalEntryController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function delete(Request $request, $id){
-        $user = JournalEntry::where('id', $id)->firstorfail()->delete();
+        $journal_entry = JournalEntry::where('id', $id)->firstorfail();
+        $attachment_file_id = $journal_entry->attachment;
+        $attachment_file_entry = File::where('id', $attachment_file_id)->firstorfail();
+        Storage::delete($attachment_file_entry->name);
+        $attachment_file_entry->delete();
+        $journal_entry->delete();
         Session::flash('message', 'Journal Entry deleted!');
         return redirect()->back();
     }

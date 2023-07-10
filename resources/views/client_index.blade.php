@@ -30,6 +30,7 @@
             <div class="user_list_grid_row">
                 <div class="user_list_grid_item"><a href="/client/index/?sortby=name">Name</a></div>
                 <div class="user_list_grid_item"><a href="/client/index/?sortby=department">Department</a></div>
+                <div class="user_list_grid_item"><a href="/client/index/?sortby=device_id">Assigned Computer</a></div>
                 <div class="user_list_grid_item"><a href="/client/index/?sortby=role">Role</a></div>
                 <div class="user_list_grid_item"><a href="/client/index/?sortby=ww_user">Woodwing User?</a></div>
                 <div class="user_list_grid_item"><a href="/client/index/?sortby=updated_at">Last Activity Date</a></div>
@@ -39,6 +40,11 @@
             <div class="user_list_grid_row">
                 <div class="user_list_grid_item"><a href="/client/view/{{$client->id}}">{{$client->name}}</a></div>
                 <div class="user_list_grid_item">{{$client->department}}</div>
+                @if ($client->device_id !== "0")
+                <div class="user_list_grid_item"><a href="/device/view/{{$client->device_id}}">{{$client->assigned_device_name}}</a></div>
+                @else
+                <div class="user_list_grid_item">{{$client->assigned_device_name}}</div>
+                @endif
                 <div class="user_list_grid_item">{{$client->role}}</div>
                 @if ($client->ww_user == 1)
                 <div class="user_list_grid_item">Yes</div>

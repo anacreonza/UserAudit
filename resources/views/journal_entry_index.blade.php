@@ -18,8 +18,8 @@
     <div class="container-fluid">
         <div class="heading">
             <div><h2>Activity</h2></div>
-            <div>
-                <a class="btn btn-primary" href="/journal_entry/create/new" role="button">New entry</a>
+            <div class="list_links">
+                <a href="/journal_entry/create/new" role="button">Add a new journal entry</a>
             </div>
         </div>
         <div>

@@ -32,26 +32,10 @@
         <div class="device_form_container">
             <div class="device_form_row">
                 <div class="device_form_row_label">
-                    <label for="username">Full Name:</label>
-                </div>
-                <div class="device_form_row_input">
-                    <input class="form-control" type="text" name="name" value="{{ old('name') }}">
-                </div>
-            </div>
-            <div class="device_form_row">
-                <div class="device_form_row_label">
                     <label for="ad_user">Active Directory User Name:</label>
                 </div>
                 <div class="device_form_row_input">
                     <input class="form-control" type="text" name="ad_user" value="{{ old('ad_user') }}">
-                </div>
-            </div>
-            <div class="device_form_row">
-                <div class="device_form_row_label">
-                    <label for="email">Email:</label>
-                </div>
-                <div class="device_form_row_input">
-                    <input class="form-control" type="text" name="email" value="{{ old('email') }}" width="200px">
                 </div>
             </div>
             <div class="device_form_row">
@@ -65,22 +49,6 @@
                             <option value="{{$device->id}}">{{$device->computername}}</option>
                         @endforeach
                     </select>
-                </div>
-            </div>
-            <div class="device_form_row">
-                <div class="device_form_row_label">
-                    <label for="department">Department:</label>
-                </div>
-                <div>
-                    <input class="form-control" type="text" name="department" value="{{ old('department')}}" autocomplete="on">
-                </div>
-            </div>
-            <div class="device_form_row">
-                <div class="device_form_row_label">
-                    <label for="role">Role:</label>
-                </div>
-                <div>
-                    <input class="form-control" type="text" name="role" value="{{ old('role') }}">
                 </div>
             </div>
             <div class="device_form_row">

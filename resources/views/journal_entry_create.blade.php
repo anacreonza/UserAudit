@@ -37,7 +37,7 @@
     @endif
     <div class="item-view-right">
         <h2 class="heading">New Journal Entry</h2>
-        <form action="/journal_entry/store/{{$user_id}}" method="post">
+        <form action="/journal_entry/store/{{$user_id}}" enctype="multipart/form-data" method="post">
         @csrf
             @if($user_id == "new")
                 <label for="journal_entry">Client Name:</label>
@@ -49,10 +49,25 @@
             @endif
             <label for="journal_entry">Entry details:</label>
             <textarea class="form-control" name="journal_entry" rows="5" value=""></textarea><br>
-            <button type="button submit" class="btn btn-primary">Update Journal</button>
+
+            <div class="custom-file">
+                <label class="custom-file-label" for="attachment">Choose file</label>
+                <input type="file" class="custom-file-input" name="attachment" id="attachment">
+            </div>
+            <br>
+            <div style="padding-top: 15pt">
+                <button type="button submit" class="btn btn-primary">Update Journal</button>
+            </div>
             {{-- <input class="form-control" type="submit" value="Update Journal"> --}}
         </div>
         </form>
     </div>
 </div>
+<script>
+    // Add the following code if you want the name of the file appear on select
+    $(".custom-file-input").on("change", function() {
+      var fileName = $(this).val().split("\\").pop();
+      $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+    });
+    </script>
 @endsection

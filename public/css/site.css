@@ -24,6 +24,10 @@ a:active {
   text-align: right;
   font-size: 11pt;
 }
+.lookup_results_table_container{
+  padding-top: 32pt;
+  padding-bottom: 32pt;
+}
 .table_container {
   margin-bottom: 2rem;
   border: 1pt solid lightgrey;
@@ -89,6 +93,18 @@ a:hover {
   grid-template-columns: 1fr 6fr;
   margin: 10pt 2pt;
 }
+.lookup_results_table {
+  margin: auto;
+  border: 1px solid ;
+  border-color: lightgray;
+  width: 80%;
+}
+.lookup_form_row{
+  display: grid;
+  grid-template-columns: 2fr 5fr 1fr;
+  gap: 8pt;
+  margin: 5pt 2pt;
+}
 .content{
   padding-top: 4rem;
 }
@@ -125,7 +141,7 @@ a:hover {
 }
 .device_list_grid_row{
   display: grid;
-  grid-template-columns: 0.8fr 0.9fr 1.1fr 1fr 1fr 1fr;
+  grid-template-columns: 0.8fr 0.9fr 1.1fr 1fr 1fr 1fr 0.5fr;
   padding: 5pt;
   border-bottom: 1pt solid lightgray;
 }
@@ -156,7 +172,7 @@ a:hover {
 }
 .user_list_grid_row{
   display: grid;
-  grid-template-columns: 1.5fr 1.5fr 2fr 1fr 1.5fr 2fr;
+  grid-template-columns: 1.2fr 1.6fr 1.3fr 1.5fr 1fr 1.4fr 2fr;
   padding: 5pt;
   border-bottom: 1pt solid lightgray;
 }

@@ -9,8 +9,11 @@ use App\Client;
 use App\JournalEntry;
 use Session;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Auth;
+use guzzlehttp\guzzle;
+use Config;
 
-class DeviceController extends Controller
+class DeviceController extends SearchController
 {
     /**
      * Display a listing of the resource.
@@ -20,7 +23,7 @@ class DeviceController extends Controller
     public function __construct() {
         $this->middleware('auth');
     }
-     public function index(Request $request)
+    public function index(Request $request)
     {
         if ($request->query('sortby')){
             if ($request->query('sortby') != $request->session()->get('sortby')){
@@ -80,27 +83,39 @@ class DeviceController extends Controller
     {
         $validated = $request->validate([
             'computername' => 'required|unique:devices',
-            'serial_no' => 'required|unique:devices',
             'assigned_user_id' => 'required',
         ]);
         $device = New Device;
         $device->computername = $request->computername;
-        $device->serial_no = $request->serial_no;
-        $device->reportjson = "none";
         $device->assigned_user_id = $request->assigned_user_id;
-        $device->device_type = $request->device_type;
-        $device->operating_system = $request->operating_system;
+        if (isset($device->serial_no)){
+            $device->serial_no = $request->serial_no;
+        }
+        $device->reportjson = "none";
         $device->username = "None";
-        $device->device_model = $request->device_model;
-        $device->machine_manifest = $request->machine_manifest;
+        if (isset($device->device_type)){
+            $device->device_type = $request->device_type;
+        }
+        if (isset($device->operating_system)){
+            $device->operating_system = $request->operating_system;
+        }
+        if (isset($device->device_model)){
+            $device->device_model = $request->device_model;
+        }
+        if (isset($device->machine_manifest)){
+            $device->machine_manifest = $request->machine_manifest;
+        }
         $device->save();
-        $user = Client::where('id', $device->assigned_user_id)->first();
-        $user->device_id = $device->id;
-        $user->save();
-        $journal_entry = New JournalEntry;
-        $journal_entry->journal_entry = "Allocated new PC: $device->computername";
-        $journal_entry->user_id = $request->assigned_user_id;
-        $journal_entry->save();
+        if ($device->assigned_user_id != 0){
+            $user = Client::where('id', $device->assigned_user_id)->first();
+            $user->device_id = $device->id;
+            $user->save();
+            $journal_entry = New JournalEntry;
+            $journal_entry->journal_entry = "Allocated new PC: $device->computername";
+            $journal_entry->user_id = $request->assigned_user_id;
+            $journal_entry->admin_id = Auth::id();
+            $journal_entry->save();
+        }
         return redirect('/device/index')->with('message', "New device $device->computername created.");
     }
 
@@ -160,7 +175,7 @@ class DeviceController extends Controller
     {
         $device = Device::where('id', $id)->firstorfail()->delete();
         Session::flash('message', 'Device Deleted!');
-        return redirect('/');
+        return redirect('/device/index');
     }
     public function export_csv(){
         $filename = "Devices.csv";
@@ -172,15 +187,21 @@ class DeviceController extends Controller
             "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
             "Expires" => 0
         );
-        $columns = array("Computer Name", "Device Model", "Operating System", "Software Manifest", "Assigned User");
+        $columns = array("Computer Name", "Device Type", "Device Manufacturer", "Device Model", "Operating System", "Operating System Version", "Memory", "Disk Total Size", "Disk Percent Free", "Software Manifest", "Assigned User");
         $callback = function() use($devices, $columns){
             $file = fopen('php://output', 'w');
             fputcsv($file, $columns);
             foreach ($devices as $device) {
-                $row['Computer Name']       = $device->computername;
-                $row['Device Model']        = $device->device_model;
-                $row['Operating System']    = $device->operating_system;
-                $row['Software Manifest']   = $device->machine_manifest;
+                $row['Computer Name']               = $device->computername;
+                $row['Device Type']                 = $device->device_type;
+                $row['Device Manufacturer']         = $device->device_manufacturer;
+                $row['Device Model']                = $device->device_model;
+                $row['Operating System']            = $device->operating_system;
+                $row['Operating System Version']    = $device->os_version;
+                $row['RAM']                         = $device->ram;
+                $row['Disk Total Size']             = $device->disk_total_size;
+                $row['Disk Percent Free']           = $device->disk_percent_free;
+                $row['Software Manifest']           = $device->machine_manifest;
                 $assigned_user = Client::where('id', $device->assigned_user_id)->first();
                 if ($assigned_user){
                     $row['Assigned User']  = $assigned_user->name;
@@ -188,47 +209,11 @@ class DeviceController extends Controller
                     $row['Assigned User'] = "None";
                 }
 
-                fputcsv($file, array($row['Computer Name'], $row['Device Model'], $row['Operating System'], $row['Software Manifest'], $row['Assigned User']));
+                fputcsv($file, array($row['Computer Name'], $row['Device Type'], $row['Device Manufacturer'], $row['Device Model'], $row['Operating System'], $row['Operating System Version'], $row['RAM'], $row['Disk Total Size'], $row['Disk Percent Free'],  $row['Software Manifest'], $row['Assigned User']));
             }
 
             fclose($file);
         };
         return response()->stream($callback, 200, $headers);
-    }
-    public function retrieve_mac_details($serial){
-        $columns = [
-            "machine.serial_number",
-            "machine.hostname",
-            "reportdata.timestamp",
-            "reportdata.console_user",
-            "machine.os_version",
-        ];
-        
-        // Using Curl to get auth info - I cannot get Guzzle to show the CSRF token.
-        $url = env('MR_URL')."/index.php?/auth/login";
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_HEADER, true);
-        curl_setopt($curl, CURLOPT_POST, 1);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, "login=stuart.kinnear&password=SystemShock2022!");
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        $result = curl_exec($curl);
-        curl_close($curl);
-        $php_session_id = substr($result, strpos($result, "PHPSESSID=")+10, 26);
-        $csrf_token = substr($result, strpos($result, "CSRF-TOKEN=")+11, 40);
-        // echo("PHP Session ID: $php_session_id" . "</br>");
-        // echo("CSRF Token: $csrf_token");
-
-        $headers = [
-            "x-csrf-token=$csrf_token",
-            "Cookie: $php_session_id"
-        ];
-        $response = Http::post(env("MR_URL")."/index.php?/datatables/data", [
-            'headers' => $headers,
-        //     'password' => 'SystemShock2022!'
-        ]);
-        // foreach ($response->getHeaders() as $name => $values) {
-        //     echo $name . ': ' . implode(', ', $values) . "\r\n";
-        // }
     }
 }

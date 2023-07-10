@@ -16,9 +16,13 @@
       <li class="nav-item">
         <a class="nav-link @if($activetab == "Devices") active @endif" href="/device/index/">Devices</a>
       </li>
+      <li class="nav-item">
+        <a class="nav-link @if($activetab == "Lookup") active @endif" href="/lookup/">Lookup</a>
+      </li>
     </ul>
     <div class="toolbar-searchbox">
-      <form class="form-inline my-2 my-lg-0" 
+      <form class="form-inline my-2 my-lg-0"
+        @if ($activetab == "Lookup") style="Display: None" @endif
         @if ($activetab == "JournalEntries") action="/journal_entries/search/" @endif
         @if ($activetab == "Reports") action="/reports/search/" @endif
         @if ($activetab == "Clients") action="/clients/search/" @endif
