@@ -16,13 +16,12 @@
 </div>
 @endif
 <div class="container-fluid">
-    <div class="heading">
+    <div class="viewer-title">
         <div>
             <h2>Devices <span class="badge badge-info"> {{$device_count}} </span></h2>
         </div>
-        <div class="list_links">
-            <a href="/device/create" role="button">Add a new device</a>
-            |
+        <div class="list-links">
+            <a href="/device/create" role="button">Add a new device</a> |
             <a href="/device/export/csv">Export CSV</a>
         </div>
     </div>
@@ -38,12 +37,12 @@
         </div>
         @foreach ($devices as $device)
         <div class="device_list_grid_row">
-            <div class="list_grid_item"><a href="/device/view/{{$device->id}}">{{$device->computername}}</a></div>
+            <div class="list_grid_item"><a href="/device/view/{{$device->computername}}">{{$device->computername}}</a></div>
             <div class="list_grid_item">{{$device->device_model}}</div>
             <div class="list_grid_item">{{$device->operating_system}}</div>
             <div class="list_grid_item">{{$device->machine_manifest}}</div>
             <div class="list_grid_item">{{$device->updated_at}}</div>
-            <div class="list_grid_item">{{$device->name}}</div>
+            <div class="list_grid_item"><a href="/client/view/{{$device->ad_user}}">{{$device->name}}</a></div>
             @if ($device->me_res_id)
             <div class="list_grid_item"><span style="color: green">Yes</span></div>
             @else

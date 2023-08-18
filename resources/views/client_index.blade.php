@@ -16,14 +16,25 @@
     </div>
     @endif
     <div class="container-fluid">
-        <div class="heading">
+        <div class="index-header">
             <div>
                 <h2>Clients <span class="badge badge-info"> {{$clientcount}} </span></h2>
             </div>
-            <div class="list_links">
-                <a href="/client/create" role="button">Add a new client</a>
-                |
-                <a href="/client/export/csv">Export CSV</a>
+            <div class="list-links">
+                <form action="">
+                    <label for="pagination" class="form-label">Items per page</label>
+                    <select name="pagination" id="pagination" class="form-select">
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                        <option value="all">All</option>
+                    </select>
+                </form>
+                <div>
+                    <a href="/client/create" role="button">Add a new client</a>
+                    |
+                    <a href="/client/export/csv">Export CSV</a>
+                </div>
             </div>
         </div>
         <div class="user_list_grid">
@@ -38,10 +49,10 @@
             </div>
             @foreach ($clientlist as $client)
             <div class="user_list_grid_row">
-                <div class="user_list_grid_item"><a href="/client/view/{{$client->id}}">{{$client->name}}</a></div>
+                <div class="user_list_grid_item"><a href="/client/view/{{$client->ad_user}}">{{$client->name}}</a></div>
                 <div class="user_list_grid_item">{{$client->department}}</div>
                 @if ($client->device_id !== "0")
-                <div class="user_list_grid_item"><a href="/device/view/{{$client->device_id}}">{{$client->assigned_device_name}}</a></div>
+                <div class="user_list_grid_item"><a href="/device/view/{{$client->assigned_device_name}}">{{$client->assigned_device_name}}</a></div>
                 @else
                 <div class="user_list_grid_item">{{$client->assigned_device_name}}</div>
                 @endif

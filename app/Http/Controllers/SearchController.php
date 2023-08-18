@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use guzzlehttp\guzzle;
 use Config;
+use Carbon\Carbon;
 
 class SearchController extends Controller
 {
@@ -28,7 +29,7 @@ class SearchController extends Controller
             }
             if (count($foundclients) == 1){
                 foreach($foundclients as $foundclient){
-                    return redirect("/client/view/$foundclient->id");
+                    return redirect("/client/view/$foundclient->ad_user");
                 }
             } else {
                 return view('client_index')->with('clientlist', $foundclients)->with('clientcount', $clientcount);
@@ -52,7 +53,7 @@ class SearchController extends Controller
             }
             if (count($founddevices) == 1){
                 foreach($founddevices as $founddevice){
-                    return redirect("/device/view/$founddevice->id");
+                    return redirect("/device/view/$founddevice->computername");
                 }
             } else {
                 return view('device_index')->with('devices', $founddevices)->with('device_count', $device_count);
@@ -90,9 +91,7 @@ class SearchController extends Controller
         }
         return $me_token;
     }
-    public function get_manage_engine_resource_id(Request $request, $id){
-        $device = Device::where('id', $id)->firstorfail();
-        $computer_name = $device->computername;
+    public function get_manage_engine_resource_id(Request $request, $computer_name){
         $token = $this->authenticate_to_me($request);
         $headers = [
             "Content-Type" => "application/json",
@@ -124,58 +123,15 @@ class SearchController extends Controller
     public function lookup_item(Request $request){
         switch ($request->search_type) {
             case 'user':
-                $ldapclient = LDAPUser::where('sAMAccountName', '=', $request->item)->get();
-                if (!$ldapclient->count()){
-                    return redirect("/lookup")->with('message', "Unable to find user details.");
-                }
-                $client_details = new \stdClass;
-                $keys = [
-                    "cn",
-                    "title",
-                    "description",
-                    "l",
-                    "st",
-                    "co",
-                    "mail",
-                    "department",
-                    "physicaldeliveryofficename",
-                    "streetaddress",
-                    "postalcode",
-                    "telephonenumber",
-                    "mobile",
-                    "facsimiletelephonenumber",
-                    "company",
-                    "manager",
-                    "memberof",
-                    "samaccountname",
-                    "proxyaddresses",
-                    "directreports",
-                    "employeetype",
-                    "badpwdcount",
-                    // "accountexpires",
-                    "lockouttime"
-                ];
-                $key_no = 0;
-                foreach($keys as $key){
-                    $entry = new \stdClass;
-                    $entry->name = $key;
-                    $entry->value = $ldapclient[0]->$key;
-                    $entryname = "entry_" . $key_no;
-                    $client_details->$entryname = $entry;
-                    $key_no++;
-                }
-                $result = $client_details;
+                return redirect("/client/view/$request->item");
                 break;
             
             case 'computer_by_user':
-                $ad_user = $request->item;
-                dd($ad_user);
-                $client = Client::where('ad_user', $ad_user)->firstorfail();
-                $result = $this->get_device_in_me_by_username($request, $ad_user);
+                return redirect("/device/find_by_user/$request->item");
                 break;
             
             case 'computer_by_computername':
-                # code...
+                return redirect("/device/view/$request->item");
                 break;
             
             default:
@@ -185,14 +141,13 @@ class SearchController extends Controller
         return view("lookup")->with('result', $result)->with('item', $request->item);
     }
     public function get_device_in_me_by_username(Request $request, $ad_user){
-        $client = Client::where('ad_user', $ad_user)->firstorfail();
         $token = $this->authenticate_to_me($request);
         $headers = [
             "Content-Type" => "application/json",
             "Authorization" => $token
         ];
         $guzzle_client = new \GuzzleHttp\Client(['verify' => false]);
-        $url = env('ME_SERVER_URL') . ":" . env('ME_SERVER_PORT') .  "/api/1.4/inventory/scancomputers?searchtype=agent_logged_on_users&searchcolumn=agent_logged_on_users&searchvalue=" . $client->ad_user;
+        $url = env('ME_SERVER_URL') . ":" . env('ME_SERVER_PORT') .  "/api/1.4/inventory/scancomputers?searchtype=agent_logged_on_users&searchcolumn=agent_logged_on_users&searchvalue=" . $ad_user;
         $response = $guzzle_client->get($url, [
             'headers' => $headers,
         ]);
@@ -200,7 +155,38 @@ class SearchController extends Controller
         $data = json_decode($response_data);
         return $data;
     }
-    public function find_device_in_me_by_username(Request $request, $ad_user){
+    public function find_device_by_user(Request $request, $username){
+        $data = $this->get_device_in_me_by_username($request, $username);
+        if ($data->status == "success"){
+            $computers = $data->message_response->scancomputers;
+            $devices = [];
+            foreach ($computers as $computer){
+                // dd($computer);
+                $device = new \stdClass();
+                $device->computername = $computer->resource_name;
+                $device->name = $computer->agent_logged_on_users;
+                $device->ad_user = $computer->agent_logged_on_users;
+                $device->device_model = "unknown";
+                $device->machine_manifest = "none";
+                $device->updated_at = "none";
+                $device->operating_system = $computer->software_name;
+                $device->me_res_id = $computer->resource_id;
+                array_push($devices, $device);
+            }
+            if (count($devices) == 0){
+                return redirect("/lookup")->with("message", "Unable to locate PC.");
+            } else {
+                if (count($devices) == 1){
+                    $computername = $devices[0]->computername;
+                    return redirect("/device/view/$computername");
+                } else {
+                    return view('device_index')->with('devices', $devices)->with('device_count', count($devices));
+                }
+            }
+        }
+        // $data = $this->get_device_in_me_by_username($request, $username);
+    }
+    public function lookup_device_in_me_by_username(Request $request, $ad_user){
         $client = Client::where('ad_user', $ad_user)->firstorfail();
         $data = $this->get_device_in_me_by_username($request, $ad_user);
         if ($data->status == "success" && sizeof($data->message_response->scancomputers) !== 0){
@@ -223,10 +209,65 @@ class SearchController extends Controller
         }
         return redirect("/client/view/$client->id")->with('message', "Unable to find device in Manage Engine!");
     }
+    public function make_manage_engine_request(Request $request, $apiuri){
+        $token = $this->authenticate_to_me($request);
+        $headers = [
+            "Content-Type" => "application/json",
+            "Authorization" => $token
+        ];
+        $client = new \GuzzleHttp\Client(['verify' => false]);
+        $server = env('ME_SERVER_URL');
+        $port = env('ME_SERVER_PORT');
+        $url = $server . ":" . $port . $apiuri;
+        $response = $client->get($url, [
+            'headers' => $headers,
+        ]);
+        $response_data = $response->getBody();
+        $data = json_decode($response_data);
+        if ($data->status == "success"){
+            return $data;
+        } else {
+            return redirect("/device/view/$id")->with('message', "Unable to retrieve device details from Manage Engine!");
+        }
+    }
+    public function get_softwarelist_from_manage_engine(Request $request, $computername){
+        $page_limit = 0;
+        $starting_page = 1;
+        $device = Device::where('computername', $computername)->firstorfail();
+        if (!isset($device->me_res_id)){
+            $res_id = $this->get_manage_engine_resource_id($request, $computername);
+        } else {
+            $res_id = $device->me_res_id;
+        }
+        if ($res_id == 0){
+            return redirect("/device/view/$id")->with('message', "Unable to find device in Manage Engine!");
+        }
+        $apiuri = "/api/1.4/inventory/installedsoftware?resid=" . $res_id . "&page=" . $starting_page . "&pagelimit=" . $page_limit . "&orderby=desc";
+        $response = $this->make_manage_engine_request($request, $apiuri);
+        $installed_software_response = $response->message_response->installedsoftware;
+        $installed_software = [];
+        foreach ($installed_software_response as $entry){
+            if ($entry->installed_date == 0 && $entry->manufacturer_name == "Microsoft Corporation"){
+                continue;
+            }
+            $new_entry = New \stdClass();
+            $new_entry->software_name = $entry->software_name;
+            $new_entry->software_version = $entry->software_version;
+            $new_entry->epoch = $entry->installed_date;
+            $date = Carbon::createFromTimeStamp($entry->installed_date/1000);
+            $new_entry->installed_date = $date->format('Y-m-d');
+            $new_entry->architecture = $entry->architecture;
+            $new_entry->manufacturer_name = $entry->manufacturer_name;
+            $installed_software[] = $new_entry;
+        }
+        $software_name = array_column($installed_software, 'software_name');
+        array_multisort($software_name, SORT_ASC, $installed_software);
+        return $installed_software;
+    }
     public function get_device_details_from_manage_engine(Request $request, $id){
         $device = Device::where('id', $id)->firstorfail();
         if (!isset($device->me_res_id)){
-            $res_id = $this->get_manage_engine_resource_id($request, $id);
+            $res_id = $this->get_manage_engine_resource_id($request, $device->computername);
         } else {
             $res_id = $device->me_res_id;
         }
@@ -256,7 +297,7 @@ class SearchController extends Controller
             $device->serial_no = $computer_details->computer_hardware_summary->serial_number;
             $device->ram = $computer_details->computer_hardware_summary->memory;
             $device->disk_total_size = $computer_details->computer_disk_summary->total_size;
-            $device->disk_percent_free = $computer_details->computer_disk_summary->percent_free;
+            $device->disk_percent_free = round($computer_details->computer_disk_summary->percent_free, 2);
             $device->operating_system = $computer_details->computer_os_summary->os_name;
             $device->os_version = $computer_details->computer_os_summary->os_version;
             $device->save();

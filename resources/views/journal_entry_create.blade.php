@@ -25,18 +25,18 @@
         </ul>
     </div>
 @endif
-<div class="item-container">
-    @if($user_id == "new")
-    <div class="item-view-left">
-        <a href="/journal_entries/index/">Back to activity log</a>
-    </div>
-    @else
-    <div class="item-view-left">
-        <a href="/client/view/{{$user_id}}">Back to client</a>
-    </div>
-    @endif
-    <div class="item-view-right">
+<div class="container">
+    <div class="viewer-title">
         <h2 class="heading">New Journal Entry</h2>
+        <div class="list-links">
+            @if($user_id == "new")
+            <a href="/journal_entries/index/">Back to activity log</a>
+            @else
+            <a href="/client/view/{{$user_id}}">Back to client</a>
+        </div>
+        @endif
+    </div>
+    <div>
         <form action="/journal_entry/store/{{$user_id}}" enctype="multipart/form-data" method="post">
         @csrf
             @if($user_id == "new")
@@ -49,7 +49,7 @@
             @endif
             <label for="journal_entry">Entry details:</label>
             <textarea class="form-control" name="journal_entry" rows="5" value=""></textarea><br>
-
+    
             <div class="custom-file">
                 <label class="custom-file-label" for="attachment">Choose file</label>
                 <input type="file" class="custom-file-input" name="attachment" id="attachment">
@@ -61,6 +61,7 @@
             {{-- <input class="form-control" type="submit" value="Update Journal"> --}}
         </div>
         </form>
+
     </div>
 </div>
 <script>

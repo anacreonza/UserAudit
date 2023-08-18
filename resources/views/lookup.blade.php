@@ -26,12 +26,12 @@
     </div>
 @endif
 <div class="container-fluid">
-    <div class="heading">
+    <div class="viewer-title">
         <div>
             <h2>Lookup</h2>
         </div>
         @if (isset($result))
-        <div class="list_links">
+        <div class="list-links">
             <a href="/client/addclient?client={{ $item ?? '' }}" class="list_links">Add this client to managed clients</a>
         </div>
         @endif

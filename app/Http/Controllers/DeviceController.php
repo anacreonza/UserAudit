@@ -53,7 +53,7 @@ class DeviceController extends SearchController
         }
         $devices = [];
         foreach (Device::orderBy($sortby, $sortorder)
-            ->select('devices.*','clients.name')
+            ->select('devices.*','clients.name', 'clients.ad_user')
             ->join('clients', 'devices.assigned_user_id','=','clients.id')
             ->get() as $device) {
             \array_push($devices, $device);
@@ -125,11 +125,17 @@ class DeviceController extends SearchController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function view($id)
+    public function view(Request $request, $devicename)
     {
-        $device = Device::findOrFail($id);
-        $client = Client::where('id', $device->assigned_user_id)->first();
-        return view('device_view')->with('device', $device)->with('client', $client);
+        $device = Device::where('computername', $devicename)->first();
+        if ($device){
+            $client = Client::where('id', $device->assigned_user_id)->first();
+        }
+        $software = $this->get_softwarelist_from_manage_engine($request, $devicename);
+        if (!isset($software)){
+            $software = "Unable to retrieve software list";
+        }
+        return view('device_view')->with('device', $device)->with('client', $client)->with('software', $software);
     }
 
     /**

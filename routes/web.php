@@ -27,10 +27,11 @@ Route::get('/device/create', [DeviceController::class, 'create']);
 Route::get('/device/edit/{id}', [DeviceController::class, 'edit']);
 Route::post('/device/update/{id}', [DeviceController::class, 'update']);
 Route::post('/device/store', [DeviceController::class, 'store']);
-Route::get('/device/view/{id}', [DeviceController::class, 'view']);
+Route::get('/device/view/{devicename}', [DeviceController::class, 'view']);
 Route::get('/device/delete/{id}', [DeviceController::class, 'destroy']);
 Route::get('/device/export/csv', [DeviceController::class, 'export_csv']);
 Route::get('/device/get_me_details/{device}', [DeviceController::class, 'get_device_details_from_manage_engine']);
+Route::get('/device/get_software_list/{device}', [DeviceController::class, 'get_softwarelist_from_manage_engine']);
 Route::get('/device/find_in_me/{ad_user}', [DeviceController::class, 'find_device_in_me_by_username']);
 
 // Client routes
@@ -40,7 +41,7 @@ Route::post('/client/update/{id}', [ClientController::class, 'update']);
 Route::get('/client/create', [ClientController::class, 'create']);
 Route::get('/client/lookup/{id}', [ClientController::class, 'lookup']);
 Route::post('/client/store', [ClientController::class, 'store']);
-Route::get('/client/view/{id}', [ClientController::class, 'view']);
+Route::get('/client/view/{username}', [ClientController::class, 'view']);
 Route::get('/client/delete/{id}', [ClientController::class, 'delete']);
 Route::get('/client/export/csv', [ClientController::class, 'export_csv']);
 // Journal routes
@@ -59,6 +60,7 @@ Route::post('/report/store/', [ReportController::class, 'store']);
 Route::post('/clients/search/', [SearchController::class, 'filter_clients']);
 Route::post('/reports/search/', [SearchController::class, 'filter_reports']);
 Route::post('/devices/search/', [SearchController::class, 'filter_devices']);
+Route::get('/device/find_by_user/{username}', [SearchController::class, 'find_device_by_user']);
 Route::post('/journal_entries/search/', [SearchController::class, 'filter_journalentries']);
 Route::get('/lookup', [SearchController::class, 'lookup']);
 Route::post('/lookup/item/', [SearchController::class, 'lookup_item']);

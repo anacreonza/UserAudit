@@ -25,13 +25,15 @@
         </ul>
     </div>
 @endif
-<div class="item-container">
-    <div class="item-view-left">
-        <p><a href="/client/delete/{{$client->id}}">Delete this client</a></p>
-        <p><a href="/client/view/{{$client->id}}">View Client</a></p>
-    </div>
-    <div class="item-view-right">
+<div class="container">
+    <div class="viewer-title">
         <h2 class="heading">Update Client</h2>
+        <div class="list-links">
+            <a href="/client/delete/{{$client->id}}">Delete this client</a> | 
+            <a href="/client/view/{{$client->id}}">View Client</a>
+        </div>
+    </div>
+    <div>
         <form action="/client/update/{{$client->id}}" method="post">
         @csrf
         <div class="device_form_container">
@@ -53,14 +55,6 @@
             </div>
             <div class="device_form_row">
                 <div class="device_form_row_label">
-                    <label for="email">Email:</label>
-                </div>
-                <div class="device_form_row_input">
-                    <input class="form-control" type="text" name="email" value="{{$client->email}}">
-                </div>
-            </div>
-            <div class="device_form_row">
-                <div class="device_form_row_label">
                     <label for="username">Assigned Device:</label>
                 </div>
                 <div class="device_form_row_input">
@@ -70,22 +64,6 @@
                             <option value="{{$device->id}}" @if ($device->computername == $device_name) selected @endif>{{$device->computername}}</option>
                         @endforeach
                     </select>
-                </div>
-            </div>
-            <div class="device_form_row">
-                <div class="device_form_row_label">
-                    <label for="department">Department:</label>
-                </div>
-                <div>
-                    <input type="text" class="form-control" name="department" value="{{$client->department}}" autocomplete="on">
-                </div>
-            </div>
-            <div class="device_form_row">
-                <div class="device_form_row_label">
-                    <label for="role">Role:</label>
-                </div>
-                <div>
-                    <input type="text" class="form-control" name="role" value="{{$client->role}}">
                 </div>
             </div>
             <div class="device_form_row">
@@ -108,7 +86,7 @@
                 </div>
             </div>
             <div>
-                <button type="button submit" class="btn btn-primary">Update User</button>
+                <button type="button submit" class="btn btn-primary">Update Client</button>
             </div>
         </div>
         </form>

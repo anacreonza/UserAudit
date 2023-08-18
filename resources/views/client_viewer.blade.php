@@ -15,46 +15,95 @@
         {{ session('message') }}
     </div>
     @endif
-    <div class="item-container">
-        <div class="item-view-left">
-            <p><a href="/client/edit/{{$client->id}}">Edit user</a></p>
-            <p><a href="/client/lookup/{{$client->id}}">Get User details from LDAP</a></p>
-            @if ($device->computername == 'None')
-            <p><a href="/device/find_in_me/{{$client->ad_user}}">Find device in Manage Engine</a></p>
+    <div class="container">
+        <div class="viewer-title">
+            <h1>{{$client->name}}</h1>
+            @if (isset($client->id))
+            <div class="list-links">
+                <a href="/client/edit/{{$client->id}}">Edit user</a> |
+                <a href="/client/delete/{{$client->id}}" onclick="return confirm('Are you sure you wish to delete this user?')">Delete user</a>
+                @if (! $client->device_id)
+                | <a href="/device/find_in_me/{{$client->ad_user}}">Find device in Manage Engine</a>
+                @endif
+            </div>
             @else
-            <p><a href="/client/delete/{{$client->id}}">Delete user</a></p>
+            <div class="list-links">
+                <p><a href="/client/create/">Add client to managed clients list</a></p>
+            </div>
             @endif
         </div>
-        <div class="item-view-right">
-            <h1>{{$client->name}}</h1>
-            <ul>
-                <li>Active Directory Username: {{$client->ad_user}}</li>
-                <li>Email: <a href="mailto:{{$client->email}}">{{$client->email}}</a></li>
-                <li>Department: {{$client->department}}</li>
-                <li>Role: {{$client->role}}</li>
-                @if ($client->manager)
-                <li>Manager: {{$client->manager}}</li>
+        <div>
+            <h2>Client Details</h2>
+            <hr>
+            <div class="details-container">
+                <div class="details-box" id="personal_details">
+                    <p><b>Username:</b> {{$client->ad_user}}</p>
+                    <p><b>Email:</b> <a href="mailto:{{$client->email}}">{{$client->email}}</a></p>
+                    @if (isset($client->role))
+                    <p><b>Role:</b> {{$client->role}}</p>
+                    @endif
+                    @if ($client->manager)
+                        @if ($client->manager_id)
+                        <p><b>Manager:</b> <a href="/client/view/{{$client->manager_ad_username}}">{{$client->manager}}</a></p>
+                        @else
+                        <p><b>Manager:</b> {{$client->manager}}</p>
+                        @endif
+                    @endif
+                    @if ($client->ww_user == 1)
+                    <p><b>User is a Woodwing User</b></p>
+                    @endif
+                </div>
+                <div class="details-box" id="addresses">
+                    @if ($client->physicaladdress)
+                    <p><b>Physical Address:</b><br>
+                        {{$client->company}}<br>
+                        {{$client->physicaladdress}}<br>
+                        {{$client->streetaddress}}<br>
+                        {{$client->location}}<br>
+                        {{$client->country}}<br>
+                    </p>
+                    @endif
+                    @if ($client->mobile)
+                    <p><b>Contact No:</b> {{$client->mobile}}</p>
+                    @endif
+                </div>
+                <div class="details-box" id="device_details">
+                    @if ($device->computername == 'None')
+                    <p><b>Assigned Device:</b> None   </p>
+                    @else
+                    <p><b>Assigned Device:</b> <a href="/device/view/{{$device->computername}}" id="copytext">{{$device->computername}}</a> <a href="#" onclick="copyToClipboard()">Copy</a></p>
+                    <p><b>Device Serial Number:</b> {{$device->serial_no}}</p>
+                    <p><b>Device Model:</b> {{$device->device_model}}</p>
+                    <p><b>OS:</b> {{$device->operating_system}}</p>
+                    @endif
+                </div>
+                <div class="details-box"><p><b>Email Aliases:<br></b>
+                    @foreach ($client->aliases as $alias)
+                        {{$alias}}<br>
+                    @endforeach
+                    </p>
+                    @if($client->lockouttime)
+                    <p><b>Lock Out Time: </b>{{$client->lockouttime}}</p>
+                    @endif
+                </div>
+                <div class="details-box">
+                    <p>
+                        @if ($client->directreports)
+                        <b>Direct Reports:</b><br>
+                        @foreach ($client->directreports as $report)
+                            {{$report}}<br>
+                        @endforeach
+                        @endif
+                    </p>
+                </div>
+                @if ($client->comments)
+                <div class="details-box"><p><b>Comment:</b> {{$client->comments}}</p></div>
                 @endif
-                @if ($client->mobile)
-                <li>Contact No: {{$client->mobile}}</li>
-                @endif
-                @if ($device->computername == 'None')
-                <li>Assigned Device: None   </li>
-                @else
-                <li>Assigned Device: <a href="/device/view/{{$device->id}}">{{$device->computername}}</a></li>
-                <ul>
-                    <li>Serial Number: {{$device->serial_no}}</li>
-                    <li>Device Model: {{$device->device_model}}</li>
-                    <li>Operating System: {{$device->operating_system}}</li>
-                </ul>
-                @endif
-                @if ($client->ww_user == 1)
-                <li>User is a Woodwing User</li>
-                @endif
-                <li>Comment: {{$client->comments}}</li>
-            </ul>
+            </div>
             <div>
                 <h2>Activity:</h2>
+                <hr>
+                @if (isset($client->id))
                 <a href="/journal_entry/create/{{$client->id}}">Add new journal entry</a>
                 <div>
                     <div class="user_journal_list_grid_row">
@@ -75,7 +124,7 @@
                                     <form method="post" action="/journal_entry/delete/{{$journal_entry->id}}"> 
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit">delete</button>
+                                        <button type="submit" onclick="return confirm('Are you sure you wish to delete this journal entry?')">delete</button>
                                     </form>
 
                                 </div>
@@ -85,6 +134,7 @@
                         <div>No journal entries found</div>
                     @endif
                 </div>
+                @endif
             </div>
         </div>
     </div>

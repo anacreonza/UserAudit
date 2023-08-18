@@ -25,11 +25,13 @@
         </ul>
     </div>
 @endif
-<div class="container-fluid">
-    <h2 class="heading">New Client</h2>
-    <form action="/client/store" method="post">
-        @csrf
-        <div class="device_form_container">
+<div class="container">
+    <div class="viewer-title">
+        <h2 class="heading">New Client</h2>
+    </div>
+    <div class="device_form_container">
+        <form action="/client/store" method="post">
+            @csrf
             <div class="device_form_row">
                 <div class="device_form_row_label">
                     <label for="ad_user">Active Directory User Name:</label>
@@ -46,7 +48,7 @@
                     <select class="form-control" name="device_id">
                         <option value="0">No device allocated</option>
                         @foreach ($devices as $device)
-                            <option value="{{$device->id}}">{{$device->computername}}</option>
+                        <option value="{{$device->id}}">{{$device->computername}}</option>
                         @endforeach
                     </select>
                 </div>
@@ -73,7 +75,7 @@
             <div>
                 <button type="button submit" class="btn btn-primary">Create Client</button>
             </div>
-        </div>
-    </form>
+        </form>
+    </div>
 </div>
 @endsection

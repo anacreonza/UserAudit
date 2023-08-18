@@ -14,15 +14,18 @@ a:hover {
 a:active {
   text-decoration: none;
 }
-.heading{
+.index-header{
   padding: 1rem 0rem;
   display: grid;
-  grid-template-columns: 5fr 2fr;
-  justify-content: end;
+  grid-template-columns: 1fr 1fr;
+  justify-content: space-between;
 }
-.list_links{
-  text-align: right;
+.list-links{
+  position: relative;
+  bottom: 0;
+  right: 0;
   font-size: 11pt;
+  text-align: right;
 }
 .lookup_results_table_container{
   padding-top: 32pt;
@@ -61,16 +64,13 @@ a:hover {
   display: grid;
   grid-template-columns: 300px auto;
 }
-.item-view-left {
-  background-color: whitesmoke;
-  padding: 1rem;
-  height: 100vh;
-  position: sticky;
+.viewer-title{
+  padding: 1rem 0rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  justify-content: space-between;
 }
-.item-view-right {
-  background-color: white;
-  padding: 1rem;
-}
+
 .device-controls-column h2{
   font-size: 14pt;
 }
@@ -87,6 +87,18 @@ a:hover {
 .device_form_container{
   margin: 2rem 0rem;
   display: grid;
+}
+.details-container{
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0px 20px;
+}
+.details-container p{
+  font-size: small;
+  margin-bottom: 0.5rem;
+}
+.software_table td{
+  font-size: smaller;
 }
 .device_form_row{
   display: grid;

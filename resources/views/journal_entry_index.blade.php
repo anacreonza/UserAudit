@@ -16,9 +16,9 @@
     </div>
     @endif
     <div class="container-fluid">
-        <div class="heading">
+        <div class="viewer-title">
             <div><h2>Activity</h2></div>
-            <div class="list_links">
+            <div class="list-links">
                 <a href="/journal_entry/create/new" role="button">Add a new journal entry</a>
             </div>
         </div>
@@ -32,7 +32,7 @@
             @foreach ($journal_entries as $entry)
             <div class="journal_list_grid_row">
                 <div class="journal_list_grid_item">{{$entry->updated_at}}</div>
-                <div class="journal_list_grid_item"><a href="/client/view/{{$entry->user_id}}">{{$entry->name}}</a></div>
+                <div class="journal_list_grid_item"><a href="/client/view/{{$entry->ad_user}}">{{$entry->name}}</a></div>
                 <div class="journal_list_grid_item">{{$entry->adminName}}</div>
                 <div class="journal_list_grid_item">{{$entry->journal_entry}}</div>
             </div>

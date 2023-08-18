@@ -24,7 +24,7 @@ class JournalEntryController extends Controller
     {
         $journal_entries = [];
         foreach (JournalEntry::orderBy('journal_entries.updated_at', 'desc')
-            ->select('journal_entries.*', 'clients.name as name', 'users.name as adminName')
+            ->select('journal_entries.*', 'clients.name as name', 'users.name as adminName', 'clients.ad_user as ad_user')
             ->leftJoin('clients', 'journal_entries.user_id','=','clients.id')
             ->leftJoin('users', 'journal_entries.admin_id', '=', 'users.id')
             ->get() as $entry)
@@ -84,7 +84,7 @@ class JournalEntryController extends Controller
 
         // Flash a message
         Session::flash('message', 'Journal Entry created!');
-        return redirect("/client/view/$request->id");
+        return redirect("/client/view/$client->ad_user");
     }
 
     /**
@@ -130,11 +130,14 @@ class JournalEntryController extends Controller
     public function delete(Request $request, $id){
         $journal_entry = JournalEntry::where('id', $id)->firstorfail();
         $attachment_file_id = $journal_entry->attachment;
-        $attachment_file_entry = File::where('id', $attachment_file_id)->firstorfail();
-        Storage::delete($attachment_file_entry->name);
-        $attachment_file_entry->delete();
+        $attachment_file_entry = File::where('id', $attachment_file_id)->first();
+        if ($attachment_file_entry){
+            Storage::delete($attachment_file_entry->name);
+            $attachment_file_entry->delete();
+        }
+        $client = Client::where('id', $journal_entry->user_id)->first();
         $journal_entry->delete();
         Session::flash('message', 'Journal Entry deleted!');
-        return redirect()->back();
+        return redirect("/client/view/$client->ad_user");
     }
 }
