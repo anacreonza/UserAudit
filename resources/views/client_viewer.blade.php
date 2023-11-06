@@ -20,15 +20,19 @@
             <h1>{{$client->name}}</h1>
             @if (isset($client->id))
             <div class="list-links">
-                <a href="/client/edit/{{$client->id}}">Edit user</a> |
-                <a href="/client/delete/{{$client->id}}" onclick="return confirm('Are you sure you wish to delete this user?')">Delete user</a>
-                @if (! $client->device_id)
-                | <a href="/device/find_in_me/{{$client->ad_user}}">Find device in Manage Engine</a>
-                @endif
+                <div>
+                    <a href="/client/edit/{{$client->id}}">Edit user</a> |
+                    <a href="/client/delete/{{$client->id}}" onclick="return confirm('Are you sure you wish to delete this user?')">Delete user</a>
+                    @if (! $client->device_id)
+                    | <a href="/device/find_in_me/{{$client->ad_user}}">Find device in Manage Engine</a>
+                    @else
+                    | <a href="/device/find_in_me/{{$client->ad_user}}">Update device details from Manage Engine</a>
+                    @endif
+                </div>
             </div>
             @else
             <div class="list-links">
-                <p><a href="/client/create/">Add client to managed clients list</a></p>
+                <p><a href="/client/add_client/{{$client->ad_user}}">Add client to managed clients list</a></p>
             </div>
             @endif
         </div>
@@ -38,7 +42,7 @@
             <div class="details-container">
                 <div class="details-box" id="personal_details">
                     <p><b>Username:</b> {{$client->ad_user}}</p>
-                    <p><b>Email:</b> <a href="mailto:{{$client->email}}">{{$client->email}}</a></p>
+                    <p><b>Primary Email:</b> <a href="mailto:{{$client->email}}">{{$client->email}}</a></p>
                     @if (isset($client->role))
                     <p><b>Role:</b> {{$client->role}}</p>
                     @endif
@@ -57,10 +61,10 @@
                     @if ($client->physicaladdress)
                     <p><b>Physical Address:</b><br>
                         {{$client->company}}<br>
-                        {{$client->physicaladdress}}<br>
-                        {{$client->streetaddress}}<br>
-                        {{$client->location}}<br>
-                        {{$client->country}}<br>
+                        @if (isset($client->physicaladdress)){{$client->physicaladdress}}<br> @endif
+                        @if (isset($client->streetaddress)){{$client->streetaddress}}<br> @endif
+                        @if (isset($client->location)){{$client->location}}<br> @endif
+                        @if (isset($client->country)){{$client->country}}<br> @endif
                     </p>
                     @endif
                     @if ($client->mobile)
@@ -77,15 +81,19 @@
                     <p><b>OS:</b> {{$device->operating_system}}</p>
                     @endif
                 </div>
-                <div class="details-box"><p><b>Email Aliases:<br></b>
+                @if(isset($client->aliases))
+                <div class="details-box">
+                    <p class="small"><b>Email Aliases:</b></p>
                     @foreach ($client->aliases as $alias)
-                        {{$alias}}<br>
+                        <p class="small">{{$alias}}</p>
                     @endforeach
-                    </p>
-                    @if($client->lockouttime)
-                    <p><b>Lock Out Time: </b>{{$client->lockouttime}}</p>
-                    @endif
                 </div>
+                @endif
+                @if(isset($client->lockouttime))
+                <div class="details-box">
+                    <p><b>Lock Out Time: </b>{{$client->lockouttime}}</p>
+                </div>
+                @endif
                 <div class="details-box">
                     <p>
                         @if ($client->directreports)
@@ -101,38 +109,41 @@
                 @endif
             </div>
             <div>
-                <h2>Activity:</h2>
-                <hr>
                 @if (isset($client->id))
+                <h3>Activity:</h3>
+                <hr>
                 <a href="/journal_entry/create/{{$client->id}}">Add new journal entry</a>
-                <div>
-                    <div class="user_journal_list_grid_row">
-                        <div class="journal_list_grid_item">Date</div>
-                        <div class="journal_list_grid_item">Entry details</div>
-                    </div>
-                    @if ($journal_entries)
-                        @foreach ($journal_entries as $journal_entry)
-                            <div class="user_journal_list_grid_row">
-                                <div class="journal_list_grid_item">{{$journal_entry->updated_at}}</div>
-                                <div>
-                                    <div class="journal_list_grid_item">{{$journal_entry->journal_entry}}</div>
-                                    @if(isset($journal_entry->attachment))
-                                    <div class="journal_list_grid_item">• <a href="/download/{{$journal_entry->attachment}}" alt="alt-text">download attachment</a></div>
-                                    @endif
-                                </div>
-                                <div class="journal_list_grid_item">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <th scope="col">Date</th>
+                            <th scope="col">Entry Details</th>
+                        </thead>
+                        <tbody>
+                        @if(isset($journal_entries))
+                        @foreach($journal_entries as $journal_entry)
+                            <tr>
+                                <td><p class="small">{{$journal_entry->updated_at}}</p></td>
+                                <td><p class="small">{{$journal_entry->journal_entry}}</p></td>
+                                @if(isset($journal_entry->attachment))
+                                <td><a href="/download/{{$journal_entry->attachment}}" alt="alt-text" class="small">download attachment</a></td>
+                                @endif
+                                <td>
                                     <form method="post" action="/journal_entry/delete/{{$journal_entry->id}}"> 
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" onclick="return confirm('Are you sure you wish to delete this journal entry?')">delete</button>
                                     </form>
-
-                                </div>
-                            </div>    
+                                </td>
+                            </tr>
                         @endforeach
-                    @else
-                        <div>No journal entries found</div>
-                    @endif
+                        @else
+                            <tr>
+                                <td>No journal entries found</td>
+                            </tr>
+                        @endif
+                        </tbody>
+                    </table>
                 </div>
                 @endif
             </div>

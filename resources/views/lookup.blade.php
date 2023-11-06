@@ -25,7 +25,7 @@
         </ul>
     </div>
 @endif
-<div class="container-fluid">
+<div class="container">
     <div class="viewer-title">
         <div>
             <h2>Lookup</h2>

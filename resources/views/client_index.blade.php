@@ -15,57 +15,56 @@
         {{ session('message') }}
     </div>
     @endif
-    <div class="container-fluid">
-        <div class="index-header">
+    <div class="container">
+        <div class="viewer-title">
             <div>
-                <h2>Clients <span class="badge badge-info"> {{$clientcount}} </span></h2>
+                <h2>Clients <span class="badge bg-info"> {{$clientcount}} </span></h2>
             </div>
             <div class="list-links">
-                <form action="">
-                    <label for="pagination" class="form-label">Items per page</label>
-                    <select name="pagination" id="pagination" class="form-select">
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                        <option value="all">All</option>
-                    </select>
-                </form>
-                <div>
-                    <a href="/client/create" role="button">Add a new client</a>
-                    |
+                <div class="list-link-item">
+                    <a href="/client/create" role="button">Add a new client</a> |
                     <a href="/client/export/csv">Export CSV</a>
                 </div>
             </div>
         </div>
-        <div class="user_list_grid">
-            <div class="user_list_grid_row">
-                <div class="user_list_grid_item"><a href="/client/index/?sortby=name">Name</a></div>
-                <div class="user_list_grid_item"><a href="/client/index/?sortby=department">Department</a></div>
-                <div class="user_list_grid_item"><a href="/client/index/?sortby=device_id">Assigned Computer</a></div>
-                <div class="user_list_grid_item"><a href="/client/index/?sortby=role">Role</a></div>
-                <div class="user_list_grid_item"><a href="/client/index/?sortby=ww_user">Woodwing User?</a></div>
-                <div class="user_list_grid_item"><a href="/client/index/?sortby=updated_at">Last Activity Date</a></div>
-                <div class="user_list_grid_item"><a href="/client/index/?sortby=last_activity">Last Activity</a></div>
-            </div>
-            @foreach ($clientlist as $client)
-            <div class="user_list_grid_row">
-                <div class="user_list_grid_item"><a href="/client/view/{{$client->ad_user}}">{{$client->name}}</a></div>
-                <div class="user_list_grid_item">{{$client->department}}</div>
-                @if ($client->device_id !== "0")
-                <div class="user_list_grid_item"><a href="/device/view/{{$client->assigned_device_name}}">{{$client->assigned_device_name}}</a></div>
-                @else
-                <div class="user_list_grid_item">{{$client->assigned_device_name}}</div>
-                @endif
-                <div class="user_list_grid_item">{{$client->role}}</div>
-                @if ($client->ww_user == 1)
-                <div class="user_list_grid_item">Yes</div>
-                @else
-                <div class="user_list_grid_item">No</div>
-                @endif
-                <div class="user_list_grid_item">{{$client->updated_at}}</div>
-                <div class="user_list_grid_item">{{$client->journal_entry_preview}}</div>
-            </div>
-            @endforeach
+        <div class="table-responsive text-nowrap">
+            <table class="table table-hover table-sm w-auto">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col"><a href="/client/index/?sortby=name">Name</a></th>
+                        <th scope="col"><a href="/client/index/?sortby=department">Department</a></th>
+                        <th scope="col"><a href="/client/index/?sortby=device_id">Assigned Computer</a></th>
+                        <th scope="col"><a href="/client/index/?sortby=role">Role</a></th>
+                        <th scope="col"><a href="/client/index/?sortby=ww_user">Woodwing User?</a></th>
+                        <th scope="col"><a href="/client/index/?sortby=updated_at">Last Activity Date</a></th>
+                        <th scope="col"><a href="/client/index/?sortby=last_activity">Last Activity</a></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($clientlist as $client)
+                    <tr>
+                        <td><a href="/client/view/{{$client->ad_user}}" class="small text-nowrap">{{$client->name}}</a></td>
+                        <td><p class="text-muted small text-nowrap">{{$client->department}}</p></td>
+                        @if ($client->device_id !== "0")
+                        <td><a href="/device/view/{{$client->computername}}" class="small text-nowrap">{{$client->computername}}</a></td>
+                        @else
+                        <td><p class="text-muted small text-nowrap">{{$client->computername}}</p></td>
+                        @endif
+                        <td><p class="text-muted small">{{$client->role}}</p></td>
+                        @if ($client->ww_user == 1)
+                        <td><p class="text-muted small">Yes</p></td>
+                        @else
+                        <td><p class="text-muted small">No</p></td>
+                        @endif
+                        <td><p class="text-muted small text-nowrap">{{$client->updated_at}}</p></td>
+                        <td><p class="text-muted small">{{$client->journal_entry_preview}}</p></td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination">
+            {{$clientlist->links()}}
         </div>
     </div>
 @endsection

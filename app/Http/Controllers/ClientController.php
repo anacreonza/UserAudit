@@ -12,7 +12,7 @@ use Session;
 use LdapRecord\Models\ActiveDirectory\User as LDAPUser;
 use Config;
 
-class ClientController extends Controller
+class ClientController extends SearchController
 {
     public function __construct() {
         $this->middleware('auth');
@@ -45,24 +45,22 @@ class ClientController extends Controller
         if (! isset($sortorder)){
             $sortorder = 'asc';
         }
-        $clientlist = [];
-        foreach (Client::orderBy($sortby, $sortorder)->get() as $client) {
+        $clients = Client::orderBy($sortby, $sortorder)
+        ->select('clients.*', 'devices.computername')
+        ->leftJoin('devices', 'clients.device_id','=','devices.id')
+        ->paginate(15);
+
+        foreach ($clients as $client){
             $last_journal_entry = JournalEntry::where('user_id', $client->id)->get()->last();
-            if (strlen($last_journal_entry['journal_entry']) > 100){
-                $client->journal_entry_preview = substr($last_journal_entry['journal_entry'], 0, 95) . "...";
-            } else {
-                $client->journal_entry_preview = $last_journal_entry['journal_entry'];
+            if ($last_journal_entry){
+                $client->journal_entry_preview = $last_journal_entry["journal_entry"];
+                if (strlen($last_journal_entry["journal_entry"]) > 90){
+                    $client->journal_entry_preview = substr($last_journal_entry['journal_entry'], 0, 80) . "...";
+                }
             }
-            $assigned_device = Device::where('id', $client->device_id)->first();
-            if (isset($assigned_device->computername)){
-                $client->assigned_device_name = $assigned_device->computername;
-            } else {
-                $client->assigned_device_name = "None";
-            }
-            \array_push($clientlist, $client);
         }
         $clientcount = Client::all()->count();
-        return view('client_index')->with('clientlist', $clientlist)->with('clientcount', $clientcount);
+        return view('client_index')->with('clientlist', $clients)->with('clientcount', $clientcount);
     }
     public function create()
     {
@@ -71,6 +69,26 @@ class ClientController extends Controller
             \array_push($devices, $device);
         }
         return view('client_create')->with('devices', $devices);
+    }
+    public function add_client(Request $request){
+        $ldap_details = $this->get_user_details_from_ldap($request->ad_user);
+        $client = New Client;
+        $client->name = $ldap_details->name;
+        $client->ad_user = $request->ad_user;
+        $client->email = $ldap_details->email;
+        $client->device_id = 0;
+        $client->department = $ldap_details->department;
+        $client->role = $ldap_details->title;
+        $client->comments = "";
+        $client->save();
+        $journal_entry = New JournalEntry;
+        $journal_entry->user_id = $client->id;
+        if (Auth::check()) {
+            $journal_entry->admin_id = Auth::id();
+        }
+        $journal_entry->journal_entry = "Client $request->ad_user created.";
+        $journal_entry->save();
+        return redirect('/client/index')->with('message', "New client $request->ad_user created.");
     }
     public function store(Request $request)
     {
@@ -105,6 +123,10 @@ class ClientController extends Controller
     public function view($username){
         $client = Client::where('ad_user', $username)->first();
         if ($client){
+            $details = $this->get_user_details_from_ldap($username);
+            foreach (get_object_vars($details) as $key => $value) {
+                $client->$key = $value;
+            }
             $journal_entries = JournalEntry::where('user_id', $client->id)->orderBy('updated_at', 'desc')->get();
             $assigned_device = Device::where('id', $client->device_id)->first();
             if ($assigned_device){
@@ -118,7 +140,7 @@ class ClientController extends Controller
                 $device->operating_system = "Unknown";
             };
         } else {
-            $client = new \stdClass();
+            $client = $this->get_user_details_from_ldap($username);
             $client->ad_user = $username;
             $journal_entries = [];
             $device = new \stdClass();
@@ -128,67 +150,10 @@ class ClientController extends Controller
             $client->ww_user = 0;
             $client->comments = "";
         }
-        $ldapclient = LDAPUser::where('sAMAccountName', '=', $username)->get();
-        if ($ldapclient->count()){
-            $client->name = $ldapclient[0]->cn[0];
-            $client->title = $ldapclient[0]->title[0];
-            $client->description = $ldapclient[0]->description[0];
-            $client->location = $ldapclient[0]->l[0];
-            $client->city = $ldapclient[0]->st[0];
-            $client->country = $ldapclient[0]->co[0];
-            $client->email = $ldapclient[0]->mail[0];
-            $client->department = $ldapclient[0]->department[0];
-            $client->physicaladdress = $ldapclient[0]->physicaldeliveryofficename[0];
-            $client->streetaddress = $ldapclient[0]->streetaddress[0];
-            $client->mobile = $ldapclient[0]->mobile[0];
-            $client->company = $ldapclient[0]->company[0];
-            $client->manager = $ldapclient[0]->manager[0];
-            $str_end = strpos($client->manager, ",OU");
-            $client->manager = \substr($client->manager, 3, $str_end-3);
-            $manager = Client::where('name', $client->manager)->first();
-            if ($manager){
-                $client->manager_id = $manager->id;
-                $client->manager_ad_username = $manager->ad_user;
-            }
-            $client->memberof = $ldapclient[0]->memberof;
-            $aliases = [];
-            foreach ($ldapclient[0]->proxyaddresses as $proxyaddress){
-                if (! strpos($proxyaddress, "@")){
-                    continue;
-                }
-                // if (! strpos($proxyaddress, "SMTP:")){
-                //     continue;
-                // }
-                if (strpos($proxyaddress, "onmicrosoft.com")){
-                    continue;
-                }
-                if (strpos($proxyaddress, "m24.media24.com")){
-                    continue;
-                }
-                if (strpos($proxyaddress, "IP:")){
-                    continue;
-                }
-                if (strpos($proxyaddress, "ip:")){
-                    continue;
-                }
-                $proxyaddress = str_ireplace("SMTP:", "", $proxyaddress);
-                $aliases[] = $proxyaddress;
-            }                
-            $client->aliases = $aliases;
-            $directreports = $ldapclient[0]->directreports;
-            $reports = [];
-            if (isset($directreports)){
-                foreach ($directreports as $directreport){
-                    $entries = explode(",", $directreport);
-                    $report = $entries[0];
-                    $report = str_ireplace("CN=", "", $report);
-                    $reports[] = $report;
-                }
-            }
-            $client->directreports = $reports;
-            $client->employeetype = $ldapclient[0]->employeetype[0];
-            $client->badpwcount = $ldapclient[0]->badpwcount[0];
-            $client->lockouttime = $ldapclient[0]->lockouttime;
+
+        if ( ! isset($client->name)){
+            Session::flash('message', 'No such user in directory!');
+            return view('lookup');
         }
         return view('client_viewer')->with('client', $client)->with('journal_entries', $journal_entries)->with('device', $device);
     }

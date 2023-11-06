@@ -39,6 +39,7 @@ Route::get('/client/index', [ClientController::class, 'index']);
 Route::get('/client/edit/{id}', [ClientController::class, 'edit']);
 Route::post('/client/update/{id}', [ClientController::class, 'update']);
 Route::get('/client/create', [ClientController::class, 'create']);
+Route::get('/client/add_client/{ad_user}', [ClientController::class, 'add_client']);
 Route::get('/client/lookup/{id}', [ClientController::class, 'lookup']);
 Route::post('/client/store', [ClientController::class, 'store']);
 Route::get('/client/view/{username}', [ClientController::class, 'view']);
@@ -51,14 +52,8 @@ Route::delete('/journal_entry/delete/{id}', [JournalEntryController::class, 'del
 Route::get('/journal_entry/index', [JournalEntryController::class, 'index']);
 // File routes
 Route::get('/download/{id}', [FileController::class, 'download']);
-// REST endpoints for reports
-Route::get('/report/index', [ReportController::class, 'index']);
-Route::get('/report/view/{id}', [ReportController::class, 'read']);
-Route::get('/report/delete/{id}', [ReportController::class, 'delete']);
-Route::post('/report/store/', [ReportController::class, 'store']);
 // Search endpoints
 Route::post('/clients/search/', [SearchController::class, 'filter_clients']);
-Route::post('/reports/search/', [SearchController::class, 'filter_reports']);
 Route::post('/devices/search/', [SearchController::class, 'filter_devices']);
 Route::get('/device/find_by_user/{username}', [SearchController::class, 'find_device_by_user']);
 Route::post('/journal_entries/search/', [SearchController::class, 'filter_journalentries']);
@@ -66,6 +61,17 @@ Route::get('/lookup', [SearchController::class, 'lookup']);
 Route::post('/lookup/item/', [SearchController::class, 'lookup_item']);
 // External request endpoints
 Route::get('/retrieve/mr/{serial}', [DeviceController::class, 'retrieve_mac_details']);
+// Report endpoints
+Route::get('/report/create', [ReportController::class, 'create']);
+Route::post('/report/store', [ReportController::class, 'store']);
+Route::get('/report/index', [ReportController::class, 'index']);
+Route::post('/report/update/{id}', [ReportController::class, 'update']);
+Route::get('/report/view/{id}', [ReportController::class, 'read']);
+Route::get('/report/delete/{id}', [ReportController::class, 'delete']);
+Route::get('/report/edit/{id}', [ReportController::class, 'edit']);
+Route::post('/report/search', [SearchController::class, 'filter_reports']);
+Route::get('/report/run/{id}', [ReportController::class, 'run_report']);
+Route::get('/report/view_result', [ReportController::class, 'view_report_result']);
 
 Auth::routes();
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

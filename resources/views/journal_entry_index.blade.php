@@ -15,29 +15,35 @@
         {{ session('message') }}
     </div>
     @endif
-    <div class="container-fluid">
+    <div class="container">
         <div class="viewer-title">
             <div><h2>Activity</h2></div>
             <div class="list-links">
                 <a href="/journal_entry/create/new" role="button">Add a new journal entry</a>
             </div>
         </div>
-        <div>
-            <div class="journal_list_grid_row">
-                <div class="journal_list_grid_item">Date</div>
-                <div class="journal_list_grid_item">User</div>
-                <div class="journal_list_grid_item">Admin Name</div>
-                <div class="journal_list_grid_item">Activity</div>
-            </div>
-            @foreach ($journal_entries as $entry)
-            <div class="journal_list_grid_row">
-                <div class="journal_list_grid_item">{{$entry->updated_at}}</div>
-                <div class="journal_list_grid_item"><a href="/client/view/{{$entry->ad_user}}">{{$entry->name}}</a></div>
-                <div class="journal_list_grid_item">{{$entry->adminName}}</div>
-                <div class="journal_list_grid_item">{{$entry->journal_entry}}</div>
-            </div>
-                @endforeach
-            </div>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <th scope="col">Date</th>
+                    <th scope="col">User</th>
+                    <th scope="col">Admin Name</th>
+                    <th scope="col">Activity</th>
+                </thead>
+                <tbody>
+                    @foreach ($journal_entries as $entry)
+                    <tr>
+                        <td class="journal_list_grid_item"><p class="small">{{$entry->updated_at}}</p></td>
+                        <td class="journal_list_grid_item"><a href="/client/view/{{$entry->ad_user}}" class="small">{{$entry->name}}</a></td>
+                        <td class="journal_list_grid_item"><p class="small">{{$entry->adminName}}</p></td>
+                        <td class="journal_list_grid_item"><p class="small">{{$entry->journal_entry}}</p></td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination">   
+            {{$journal_entries->links()}}
         </div>
     </div>
 @endsection

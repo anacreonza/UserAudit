@@ -18,21 +18,25 @@
 <div class="container">
     <div class="viewer-title">
         <div>
-            <h1>{{strtoupper($device->computername)}}</h1>
+            <h1>{{strtoupper($device_details->scancomputer->resource_name)}}</h1>
         </div>
         <div class="list-links">
-            <a href="/device/delete/{{$device->id}}" onclick="return confirm('Are you sure you wish to delete this device?')">Delete device</a> |
-            <a href="/device/edit/{{$device->id}}">Edit device</a>
-            @php
-            if (str_contains($device->operating_system, "mac")){
-                $device_is_mac = True;
-            } else {
-                $device_is_mac = False;
-            }
-            @endphp
-            @if ($device_is_mac)
-            | <a href="{{env('MR_URL')}}/index.php?/clients/detail/{{$device->serial_no}}#tab_summary" target=”_blank”>View Mac in Munkireport</a>
-            @endif
+            <div>
+                @if(isset($device))
+                <a href="/device/delete/{{$device->id}}" onclick="return confirm('Are you sure you wish to delete this device?')">Delete device</a> |
+                <a href="/device/edit/{{$device->id}}">Edit device</a>
+                @endif
+                @php
+                if (str_contains($device_details->computer_os_summary->os_name, "mac")){
+                    $device_is_mac = True;
+                } else {
+                    $device_is_mac = False;
+                }
+                @endphp
+                @if ($device_is_mac)
+                | <a href="{{env('MR_URL')}}/index.php?/clients/detail/{{$device_details->computer_hardware_summary->serial_number}}#tab_summary" target=”_blank”>View Mac in Munkireport</a>
+                @endif
+            </div>
         </div>        
     </div>
     <div>
@@ -43,33 +47,35 @@
                 <b><p>Current User:</b> <a href="/client/view/{{$client->ad_user}}">{{$client->name}}</a></p>
             </div>
             <div>
-                <b><p>Device Type:</b> {{$device->device_type}}</p>
+                <b><p>Device Type:</b> {{$device_details->computer_hardware_summary->device_type}}</p>
             </div>
-            @if (isset($device->device_manufacturer))
-            <div><p><b>Device Manufacturer:</b> {{$device->device_manufacturer}}</p></div>
+            @if (isset($device_details->computer_hardware_summary->device_manufacturer))
+            <div><p><b>Device Manufacturer:</b> {{$device_details->computer_hardware_summary->device_manufacturer}}</p></div>
             @endif
-            @if (str_contains($device->operating_system, "mac") == True )
-            <div><p><b>Device Model:</b> <a href="https://www.everymac.com/ultimate-mac-lookup/?search_keywords={{$device->device_model}}">{{$device->device_model}}</a></p></div>
+            @if ($device_is_mac == True )
+            <div><p><b>Device Model:</b> <a href="https://www.everymac.com/ultimate-mac-lookup/?search_keywords={{$device_details->computer_hardware_summary->device_model}}">{{$device_details->computer_hardware_summary->device_model}}</a></p></div>
             @else
-            <div><p><b>Device Model:</b> {{$device->device_model}}</p></div>
+            <div><p><b>Device Model:</b> {{$device_details->computer_hardware_summary->device_model}}</p></div>
             @endif
-            <div><p><b>Serial Number:</b> {{$device->serial_no}}</p></div>
-            <div><p><b>OS:</b> {{$device->operating_system}}</p></div>
-            @if (isset($device->os_version))
-            <div><p><b>Operating System Version:</b> {{$device->os_version}}</p></div>
+            <div><p><b>Serial Number:</b> {{$device_details->computer_hardware_summary->serial_number}}</p></div>
+            <div><p><b>OS:</b> {{$device_details->computer_os_summary->os_name}}</p></div>
+            @if (isset($device_details->computer_os_summary->os_name))
+            <div><p><b>Operating System Version:</b> {{$device_details->computer_os_summary->os_version}}</p></div>
             @endif
-            @if (isset($device->ram))
-            <div><p><b>Installed Memory:</b> {{$device->ram}} MB</p></div>
+            @if (isset($device_details->computer_hardware_summary->memory))
+            <div><p><b>Installed Memory:</b> {{$device_details->computer_hardware_summary->memory}} MB</p></div>
             @endif
-            @if (isset($device->disk_total_size))
-            <div><p><b>Disk Total Size:</b> {{$device->disk_total_size}} GB</p></div>
+            @if (isset($device_details->computer_disk_summary->total_size))
+            <div><p><b>Disk Total Size:</b> {{$device_details->computer_disk_summary->total_size}} GB</p></div>
             @endif
-            @if (isset($device->disk_percent_free))
-            <div><p><b>Disk Percent Free:</b> {{$device->disk_percent_free}}%</p></div>
+            @if (isset($device_details->computer_disk_summary->percent_free))
+            <div><p><b>Disk Percent Free:</b> {{$device_details->computer_disk_summary->percent_free}}%</p></div>
             @endif
             @if (isset($device->machine_manifest))
             <div><p><b>Device Software Manifest:</b> {{$device->machine_manifest}}</p></div>
             @endif
+            <div><p><b>Manage Engine Resource ID:</b> {{$device_details->scancomputer->resource_id}}</p></div>
+            <div><p><b>Last Successful Scan:</b> {{$device_details->last_scan_ago}}</p></div>
         </div>
         <br>
         <div class="software_list">
@@ -80,8 +86,9 @@
                     <col span="1" style="width: 30%;">
                     <col span="1" style="width: 10%;">
                     <col span="1" style="width: 10%;">
-                    <col span="1" style="width: 10%;">
-                    <col span="1" style="width: 15%;">
+                    <col span="1" style="width: 8%;">
+                    <col span="1" style="width: 12%;">
+                    <col span="1" style="width: 5%;">
                 </colgroup>
                 <tr>
                     <th>Software Name</th>
@@ -89,18 +96,22 @@
                     <th>Installed Date</th>
                     <th>Architecture</th>
                     <th>Manufacturer</th>
+                    <th>Software ID</th>
                 </tr>
-                @foreach ($software as $package)
+                @foreach ($device_details->software as $package)
                     <tr>
                         <td>{{($package->software_name)}}</td>
                         <td>{{($package->software_version)}}</td>
                         <td>{{($package->installed_date)}}</td>
                         <td>{{($package->architecture)}}</td>
                         <td>{{($package->manufacturer_name)}}</td>
+                        <td>{{($package->software_id)}}</td>
                     </tr>
                 @endforeach
             </table>
         </div>
     </div>
 </div>
+@endsection
+@section('footer')
 @endsection

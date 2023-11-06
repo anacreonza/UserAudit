@@ -22,13 +22,11 @@ class JournalEntryController extends Controller
     }
      public function index()
     {
-        $journal_entries = [];
-        foreach (JournalEntry::orderBy('journal_entries.updated_at', 'desc')
+        $journal_entries = JournalEntry::orderBy('journal_entries.updated_at', 'desc')
             ->select('journal_entries.*', 'clients.name as name', 'users.name as adminName', 'clients.ad_user as ad_user')
             ->leftJoin('clients', 'journal_entries.user_id','=','clients.id')
             ->leftJoin('users', 'journal_entries.admin_id', '=', 'users.id')
-            ->get() as $entry)
-            \array_push($journal_entries, $entry);
+            ->paginate(15);
         return view('journal_entry_index')->with('journal_entries', $journal_entries);
     }
 

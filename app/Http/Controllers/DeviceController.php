@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
 use guzzlehttp\guzzle;
 use Config;
+use Carbon\Carbon;
 
 class DeviceController extends SearchController
 {
@@ -51,13 +52,10 @@ class DeviceController extends SearchController
         if (! isset($sortorder)){
             $sortorder = 'asc';
         }
-        $devices = [];
-        foreach (Device::orderBy($sortby, $sortorder)
+        $devices = Device::orderBy($sortby, $sortorder)
             ->select('devices.*','clients.name', 'clients.ad_user')
-            ->join('clients', 'devices.assigned_user_id','=','clients.id')
-            ->get() as $device) {
-            \array_push($devices, $device);
-        }
+            ->leftJoin('clients', 'devices.assigned_user_id','=','clients.id')
+            ->paginate(15);
         $device_count = Device::all()->count();
         return view('device_index')->with('devices', $devices)->with('device_count', $device_count);
     }
@@ -127,15 +125,34 @@ class DeviceController extends SearchController
      */
     public function view(Request $request, $devicename)
     {
-        $device = Device::where('computername', $devicename)->first();
-        if ($device){
+        if ($device = Device::where('computername', $devicename)->first()){
             $client = Client::where('id', $device->assigned_user_id)->first();
+            if (! isset($client)){
+                $client = new \stdClass();
+                $client->ad_user = "None";
+                $client->name = "None";
+            }
+        } else {
+            $client = new \stdClass();
+            $client->ad_user = "None";
+            $client->name = "None";
         }
-        $software = $this->get_softwarelist_from_manage_engine($request, $devicename);
-        if (!isset($software)){
-            $software = "Unable to retrieve software list";
+        $resource_id = $this->get_manage_engine_resource_id($request, $devicename);
+        if($resource_id){
+            $device_details = $this->get_device_details_from_manage_engine($request, $resource_id);
+            $device_details->software = $this->get_softwarelist_from_manage_engine($request, $devicename);
+            $scancomputers = $this->get_me_device_by_computername($request, $devicename);
+            $device_details->scancomputer = $scancomputers->scancomputers[0];
+            $epoch = substr($device_details->scancomputer->last_successful_scan, 0, -3);
+            $dt = new \DateTime("@$epoch");
+            $date = $dt->format('Y-m-d H:i:s');
+            $cdate = Carbon::createFromDate($date);
+            $relative_date = $cdate->diffForHumans();
+            $device_details->last_scan_ago = $relative_date;
+            return view('device_view')->with('device_details', $device_details)->with('client', $client);
+        } else {
+            return redirect("/device/index")->with("message", "Unable to retrieve device details from Manage Engine");
         }
-        return view('device_view')->with('device', $device)->with('client', $client)->with('software', $software);
     }
 
     /**
