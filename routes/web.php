@@ -53,12 +53,12 @@ Route::get('/journal_entry/index', [JournalEntryController::class, 'index']);
 // File routes
 Route::get('/download/{id}', [FileController::class, 'download']);
 // Search endpoints
-Route::post('/clients/search/', [SearchController::class, 'filter_clients']);
-Route::post('/devices/search/', [SearchController::class, 'filter_devices']);
+Route::post('/clients/search', [SearchController::class, 'filter_clients']);
+Route::post('/devices/search', [SearchController::class, 'filter_devices']);
 Route::get('/device/find_by_user/{username}', [SearchController::class, 'find_device_by_user']);
-Route::post('/journal_entries/search/', [SearchController::class, 'filter_journalentries']);
+Route::post('/journal_entries/search', [SearchController::class, 'filter_journalentries']);
 Route::get('/lookup', [SearchController::class, 'lookup']);
-Route::post('/lookup/item/', [SearchController::class, 'lookup_item']);
+Route::post('/lookup/item', [SearchController::class, 'lookup_item']);
 // External request endpoints
 Route::get('/retrieve/mr/{serial}', [DeviceController::class, 'retrieve_mac_details']);
 // Report endpoints

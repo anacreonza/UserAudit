@@ -23,14 +23,14 @@ $user = Auth::user();
                 <li class="nav-item">
                     <a class="nav-link @if($activetab == "Devices")active @endif" href="/device/index/">Devices</a>
                 </li>
-                {{-- <li class="nav-item">
-                    <a class="nav-link @if($activetab == "Lookup") active @endif" href="/lookup/">Lookup</a>
-                </li> --}}
                 <li class="nav-item navbar-item">
                     <div class="toolbar-search-input">
-                        <form class="d-flex" method="POST" @if ($activetab == "JournalEntries") action="/journal_entries/search/"@endif @if ($activetab == "Reports") action="/reports/search/"@endif @if ($activetab == "Clients") action="/clients/search/"@endif @if ($activetab == "Devices") action="/devices/search/"@endif>
+                        <form class="d-flex" method="POST"
+@if ($activetab == "JournalEntries") action="/journal_entries/search/"@endif
+@if ($activetab == "Reports") action="/reports/search"@endif
+@if ($activetab == "Clients") action="/clients/search"@endif
+@if ($activetab == "Devices") action="/devices/search"@endif>
                             @csrf
-                            
                             <input class="form-control mr-sm-2" value="{{$searchstring ?? ''}}" type="search" placeholder="@if($activetab == "Clients")Search clients @endif @if($activetab == "Devices")Search devices @endif" aria-label="Search" id="searchterm" name="searchterm" autocomplete="off" autofocus>
                             <button class="btn btn-light mini-search-button" type="submit">Search</button>
                         </form>
