@@ -36,11 +36,38 @@ class ReportController extends SearchController
         Session::flash('message', "Report Created");
         return redirect('/report/index');
     }
-    public function index(){
-        $reports = [];
-        foreach (Report::all() as $report) {
-            \array_push($reports, $report);
+    public function index(Request $request){
+        if ($request->query('reports_sortby')){
+            if ($request->query('reports_sortby') != $request->session()->get('reports_sortby')){
+                $request->session()->forget('reports_sortorder');
+            }
+            $sortby = $request->query('reports_sortby');
+            $request->session()->put('reports_sortby', $sortby);
+            if ($request->session()->get('reports_sortorder')){
+                if ($request->session()->get('reports_sortorder') == 'asc'){
+                    $sortorder = 'desc';
+                } elseif ($request->session()->get('reports_sortorder') == 'desc'){
+                    $sortorder = 'asc';
+                }
+                $request->session()->put('reports_sortorder', $sortorder);
+            } else {
+                $request->session()->put('reports_sortorder', 'asc');
+            }
         }
+        if ($request->session()->get('reports_sortby')){
+            $sortby = $request->session()->get('reports_sortby');
+        };
+        if (! isset($sortby)){
+            $sortby = 'report_name';
+        }
+        if (! isset($sortorder)){
+            $sortorder = 'asc';
+        }
+        $reports = Report::orderBy($sortby, $sortorder)->paginate(10);
+        // $reports = [];
+        // foreach (Report::all() as $report) {
+        //     \array_push($reports, $report);
+        // }
         return view('report_index')->with('reports', $reports);
     }
     public function edit($id){

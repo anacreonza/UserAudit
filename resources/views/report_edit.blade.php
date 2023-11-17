@@ -37,25 +37,25 @@
         <div class="device_form_container">
             <div class="device_form_row">
                 <div class="device_form_row_label">
-                    <label for="assigned_user_id">Report Name</label>
+                    <label for="report_name">Report Name</label>
                 </div>
                 <input name="report_name" class="form-control" type="text" value="{{$report->report_name}}">
             </div>
             <div class="device_form_row">
                 <div class="device_form_row_label">
-                    <label for="assigned_user_id">Endpoint</label>
+                    <label for="endpoint">Endpoint</label>
                 </div>
                 <input name="endpoint" class="form-control" type="text" value="{{$report->endpoint}}">
             </div>
             <div class="device_form_row">
                 <div class="device_form_row_label">
-                    <label for="assigned_user_id">Software ID</label>
+                    <label for="software_id">Software ID</label>
                 </div>
                 <input name="software_id" class="form-control" type="text" value="{{$report->software_id}}">
             </div>
             <div class="device_form_row">
                 <div class="device_form_row_label">
-                    <label for="assigned_user_id">Items Per Page</label>
+                    <label for="items_per_page">Search limit</label>
                 </div>
                 <input name="items_per_page" class="form-control" type="text" value="{{$report->items_per_page}}">
             </div>

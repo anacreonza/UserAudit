@@ -26,7 +26,7 @@ class JournalEntryController extends Controller
             ->select('journal_entries.*', 'clients.name as name', 'users.name as adminName', 'clients.ad_user as ad_user')
             ->leftJoin('clients', 'journal_entries.user_id','=','clients.id')
             ->leftJoin('users', 'journal_entries.admin_id', '=', 'users.id')
-            ->paginate(15);
+            ->paginate(10);
         return view('journal_entry_index')->with('journal_entries', $journal_entries);
     }
 
@@ -67,7 +67,7 @@ class JournalEntryController extends Controller
             $file->uploaded_by_admin_id = Auth::id();
             $file->name = $attachment_file;
             $file->save();
-            $journal_entry->attachment = $file->id;
+            $journal_entry->attachment_id = $file->id;
         }
         $journal_entry->save();
         if ($request->file('attachment')){

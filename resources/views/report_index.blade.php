@@ -18,7 +18,7 @@
     <div class="container">
         <div class="viewer-title">
             <div>
-                <h2>Reports</h2>
+                <h2>Reports <span class="badge bg-info"> {{$reports->total()}} </span></h2>
             </div>
             <div class="list-links">
                 <div class="list-link-item">
@@ -30,11 +30,11 @@
             <table class="table table-hover w-auto">
                 <thead class="table-light">
                     <tr>
-                        <th scope="col"><a href="/report/index/?sortby=reportname">Report Name</a></th>
-                        <th scope="col"><a href="/report/index/?sortby=system">System</a></th>
-                        <th scope="col"><a href="/report/index/?sortby=endpoint">Endpoint</a></th>
-                        <th scope="col"><a href="/report/index/?sortby=created_at">Created At</a></th>
-                        <th scope="col"><a href="/report/index/?sortby=action">Action</a></th>
+                        <th scope="col"><a href="/report/index/?reports_sortby=report_name">Report Name</a></th>
+                        <th scope="col"><a href="/report/index/?reports_sortby=system">System</a></th>
+                        <th scope="col"><a href="/report/index/?reports_sortby=endpoint">Endpoint</a></th>
+                        <th scope="col"><a href="/report/index/?reports_sortby=created_at">Created At</a></th>
+                        <th scope="col"><a href="/report/index/?reports_sortby=action">Action</a></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -49,6 +49,9 @@
                     @endforeach
                 </tbody>
             </table>
+        </div>
+        <div class="pagination">
+            {{$reports->links()}}
         </div>
     </div>
 @endsection

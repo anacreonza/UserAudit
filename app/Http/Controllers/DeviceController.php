@@ -55,7 +55,7 @@ class DeviceController extends SearchController
         $devices = Device::orderBy($sortby, $sortorder)
             ->select('devices.*','clients.name', 'clients.ad_user')
             ->leftJoin('clients', 'devices.assigned_user_id','=','clients.id')
-            ->paginate(15);
+            ->paginate(10);
         $device_count = Device::all()->count();
         return view('device_index')->with('devices', $devices)->with('device_count', $device_count);
     }
@@ -149,6 +149,9 @@ class DeviceController extends SearchController
             $cdate = Carbon::createFromDate($date);
             $relative_date = $cdate->diffForHumans();
             $device_details->last_scan_ago = $relative_date;
+            if ($client->ad_user == "None"){
+                $client->ad_user = $device_details->scancomputer->agent_logged_on_users;
+            };
             return view('device_view')->with('device_details', $device_details)->with('client', $client);
         } else {
             return redirect("/device/index")->with("message", "Unable to retrieve device details from Manage Engine");

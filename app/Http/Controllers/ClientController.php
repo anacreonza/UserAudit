@@ -48,7 +48,7 @@ class ClientController extends SearchController
         $clients = Client::orderBy($sortby, $sortorder)
         ->select('clients.*', 'devices.computername')
         ->leftJoin('devices', 'clients.device_id','=','devices.id')
-        ->paginate(15);
+        ->paginate(10);
 
         foreach ($clients as $client){
             $last_journal_entry = JournalEntry::where('user_id', $client->id)->get()->last();

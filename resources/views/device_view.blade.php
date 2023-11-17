@@ -44,7 +44,7 @@
         <hr>
         <div class="details-container">
             <div>
-                <b><p>Current User:</b> <a href="/client/view/{{$client->ad_user}}">{{$client->name}}</a></p>
+                <b><p>Current User:</b> <a href="/client/view/{{$client->ad_user}}">{{$client->ad_user}}</a></p>
             </div>
             <div>
                 <b><p>Device Type:</b> {{$device_details->computer_hardware_summary->device_type}}</p>

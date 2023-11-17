@@ -18,7 +18,7 @@
     <div class="container">
         <div class="viewer-title">
             <div>
-                <h2>Clients <span class="badge bg-info"> {{$clientcount}} </span></h2>
+                <h2>Clients <span class="badge bg-info"> {{$clientlist->total()}} </span></h2>
             </div>
             <div class="list-links">
                 <div class="list-link-item">

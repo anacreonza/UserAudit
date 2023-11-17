@@ -17,9 +17,9 @@
     @endif
     <div class="container">
         <div class="viewer-title">
-            <h3>{{$report->report_name}}</h3>
+            <h3>{{$report->report_name}} <span class="badge bg-info">{{$response->total}} Devices</h3>
             <div class="list-links">
-                <p>Results: {{$response->total}} | Items Per Page: {{$response->limit}} | Page Number: {{$response->page}}</p>
+                <p>Query Items Limit: {{$response->limit}} | Page Number: {{$response->page}}</p>
             </div>
         </div>
         <table class="table table-responsive">
