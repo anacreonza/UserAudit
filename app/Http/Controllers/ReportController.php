@@ -89,6 +89,8 @@ class ReportController extends SearchController
                 $computer->human_readable_last_scan_date = $date;
                 $computer->relative_last_scan_date = $relative_date;
             }
+            $report->device_count = $response->total;
+            $report->save();
             return view('report_result_view')->with('response', $response)->with('report', $report);
         } else {
             Session::flash('message', 'Unable to generate report');

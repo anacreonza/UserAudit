@@ -141,6 +141,7 @@ class DeviceController extends SearchController
         if($resource_id){
             $device_details = $this->get_device_details_from_manage_engine($request, $resource_id);
             $device_details->software = $this->get_softwarelist_from_manage_engine($request, $devicename);
+            $device_details->software_count = count($device_details->software);
             $scancomputers = $this->get_me_device_by_computername($request, $devicename);
             $device_details->scancomputer = $scancomputers->scancomputers[0];
             $epoch = substr($device_details->scancomputer->last_successful_scan, 0, -3);

@@ -141,19 +141,19 @@ class ClientController extends SearchController
             };
         } else {
             $client = $this->get_user_details_from_ldap($username);
-            $client->ad_user = $username;
-            $journal_entries = [];
-            $device = new \stdClass();
-            $device->id = 0;
-            $client->manager_id = 0;
-            $device->computername = "None";
-            $client->ww_user = 0;
-            $client->comments = "";
-        }
-
-        if ( ! isset($client->name)){
-            Session::flash('message', 'No such user in directory!');
-            return view('lookup');
+            if ($client){
+                $client->ad_user = $username;
+                $journal_entries = [];
+                $device = new \stdClass();
+                $device->id = 0;
+                $client->manager_id = 0;
+                $device->computername = "None";
+                $client->ww_user = 0;
+                $client->comments = "";
+            } else {
+                Session::flash('message', 'No such user in LDAP!');
+                return redirect('/client/view/' . $username);
+            }
         }
         return view('client_viewer')->with('client', $client)->with('journal_entries', $journal_entries)->with('device', $device);
     }

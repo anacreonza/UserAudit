@@ -38,7 +38,7 @@
                 <tr>    
                     <td><a href="/device/view/{{$computer->resource_name}}" class="small">{{$computer->resource_name}}</a></td>
                     <td><p class="small">{{$computer->model}}</p></td>
-                    <td><p class="small">{{$computer->agent_logged_on_users}}</p></td>
+                    <td><p class="small"><a href="/client/view/{{$computer->agent_logged_on_users}}">{{$computer->agent_logged_on_users}}</a></p></td>
                     <td><p class="small">{{$computer->ip_address}}</p></td>
                     <td><p class="small">{{$computer->software_name}}</p></td>
                     <td><p class="small">{{$computer->software_version}}</p></td>

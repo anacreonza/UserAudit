@@ -34,6 +34,7 @@
                         <th scope="col"><a href="/report/index/?reports_sortby=system">System</a></th>
                         <th scope="col"><a href="/report/index/?reports_sortby=endpoint">Endpoint</a></th>
                         <th scope="col"><a href="/report/index/?reports_sortby=created_at">Created At</a></th>
+                        <th scope="col"><a href="/report/index/?reports_sortby=device_count">Devices</a></th>
                         <th scope="col"><a href="/report/index/?reports_sortby=action">Action</a></th>
                     </tr>
                 </thead>
@@ -44,6 +45,7 @@
                         <td><p class="small">{{$report->system}}</p></td>
                         <td><p class="small">{{$report->endpoint}}</p></td>
                         <td><p class="small">{{$report->created_at}}</p></td>
+                        <td><p class="small">{{$report->device_count}}</p></td>
                         <td><a href="/report/edit/{{$report->id}}" class="small">Edit</a></td>
                     </tr>
                     @endforeach

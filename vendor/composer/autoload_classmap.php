@@ -9,6 +9,7 @@ return array(
     'App\\Client' => $baseDir . '/app/Client.php',
     'App\\Console\\Kernel' => $baseDir . '/app/Console/Kernel.php',
     'App\\Device' => $baseDir . '/app/Device.php',
+    'App\\Events\\UserLoggedIn' => $baseDir . '/app/Events/UserLoggedIn.php',
     'App\\Exceptions\\Handler' => $baseDir . '/app/Exceptions/Handler.php',
     'App\\File' => $baseDir . '/app/File.php',
     'App\\Http\\Controllers\\Auth\\ConfirmPasswordController' => $baseDir . '/app/Http/Controllers/Auth/ConfirmPasswordController.php',

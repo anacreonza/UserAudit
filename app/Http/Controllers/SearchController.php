@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Http;
 use guzzlehttp\guzzle;
 use Config;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class SearchController extends Controller
 {
@@ -110,12 +111,16 @@ class SearchController extends Controller
         $server = env('ME_SERVER_URL');
         $port = env('ME_SERVER_PORT');
         $url = $server . ":" . $port . "/api/1.4/inventory/scancomputers?searchtype=resource_name&searchcolumn=resource_name&searchvalue=" . $computer_name;
+        $message = "Making Manage Engine Request: $url";
+        Log::info($message);
         $response = $client->get($url, [
             'headers' => $headers,
         ]);
         $response_data = $response->getBody();
         $data = json_decode($response_data);
         if ($data->status == "success"){
+            $message = "Manage Engine Request Successful";
+            Log::info($message);
             if (sizeof($data->message_response->scancomputers) === 0){
                 return false;
             }
@@ -299,28 +304,30 @@ class SearchController extends Controller
             }
             $client->memberof = $ldapclient[0]->memberof;
             $aliases = [];
-            foreach ($ldapclient[0]->proxyaddresses as $proxyaddress){
-                if (! strpos($proxyaddress, "@")){
-                    continue;
+            if ($ldapclient[0]->proxyaddresses){
+                foreach ($ldapclient[0]->proxyaddresses as $proxyaddress){
+                    if (! strpos($proxyaddress, "@")){
+                        continue;
+                    }
+                    // if (! strpos($proxyaddress, "SMTP:")){
+                    //     continue;
+                    // }
+                    if (strpos($proxyaddress, "onmicrosoft.com")){
+                        continue;
+                    }
+                    if (strpos($proxyaddress, "m24.media24.com")){
+                        continue;
+                    }
+                    if (strpos($proxyaddress, "IP:")){
+                        continue;
+                    }
+                    if (strpos($proxyaddress, "ip:")){
+                        continue;
+                    }
+                    $proxyaddress = str_ireplace("SMTP:", "", $proxyaddress);
+                    $aliases[] = $proxyaddress;
                 }
-                // if (! strpos($proxyaddress, "SMTP:")){
-                //     continue;
-                // }
-                if (strpos($proxyaddress, "onmicrosoft.com")){
-                    continue;
-                }
-                if (strpos($proxyaddress, "m24.media24.com")){
-                    continue;
-                }
-                if (strpos($proxyaddress, "IP:")){
-                    continue;
-                }
-                if (strpos($proxyaddress, "ip:")){
-                    continue;
-                }
-                $proxyaddress = str_ireplace("SMTP:", "", $proxyaddress);
-                $aliases[] = $proxyaddress;
-            }                
+            }
             $client->aliases = $aliases;
             $directreports = $ldapclient[0]->directreports;
             $reports = [];
@@ -343,7 +350,7 @@ class SearchController extends Controller
             return False;
         }
     }
-    public function make_manage_engine_request(Request $request, $endpoint, $items_per_page = 30 ){
+    public function make_manage_engine_request(Request $request, $endpoint, $items_per_page = 100 ){
         $token = $this->authenticate_to_me($request);
         $headers = [
             "Content-Type" => "application/json",
@@ -353,6 +360,8 @@ class SearchController extends Controller
         $server = env('ME_SERVER_URL');
         $port = env('ME_SERVER_PORT');
         $url = $server . ":" . $port . $endpoint . "&pagelimit=" . $items_per_page;
+        $message = "Making request to Manage Engine URL: $url";
+        Log::info($message);
         $response = $client->get($url, [
             'headers' => $headers,
         ]);
@@ -364,30 +373,34 @@ class SearchController extends Controller
             return redirect("/device/view/$id")->with('message', "Unable to retrieve device details from Manage Engine!");
         }
     }
-    public function get_softwarelist_from_manage_engine(Request $request, $computername, $items_per_page = 80){
-        $starting_page = 1;
+    public function get_softwarelist_from_manage_engine(Request $request, $computername, $items_per_page = 800){
+        $starting_page = 0;
         $res_id = $this->get_manage_engine_resource_id($request, $computername);
         if ($res_id == 0){
             return "Unable to retrieve software list.";
         };
-        $apiuri = "/api/1.4/inventory/installedsoftware?resid=" . $res_id . "&page=" . $starting_page . "&orderby=desc";
+        $apiuri = "/api/1.4/inventory/installedsoftware?resid=" . $res_id . "&page=" . $starting_page;
         $response = $this->make_manage_engine_request($request, $apiuri, $items_per_page);
         $installed_software_response = $response->message_response->installedsoftware;
         $installed_software = [];
+        $unique_software_ids = [];
         foreach ($installed_software_response as $entry){
-            if ($entry->installed_date == 0 && $entry->manufacturer_name == "Microsoft Corporation"){
-                continue;
+            // if ($entry->installed_date == 0 && $entry->manufacturer_name == "Microsoft Corporation"){
+            //     continue;
+            // }
+            if (!in_array($entry->software_id, $unique_software_ids)){
+                $new_entry = New \stdClass();
+                $new_entry->software_name = $entry->software_name;
+                $new_entry->software_version = $entry->software_version;
+                $new_entry->epoch = $entry->installed_date;
+                $date = Carbon::createFromTimeStamp($entry->installed_date/1000);
+                $new_entry->installed_date = $date->format('Y-m-d');
+                $new_entry->architecture = $entry->architecture;
+                $new_entry->manufacturer_name = $entry->manufacturer_name;
+                $new_entry->software_id = $entry->software_id;
+                $unique_software_ids[] = $entry->software_id;
+                $installed_software[] = $new_entry;
             }
-            $new_entry = New \stdClass();
-            $new_entry->software_name = $entry->software_name;
-            $new_entry->software_version = $entry->software_version;
-            $new_entry->epoch = $entry->installed_date;
-            $date = Carbon::createFromTimeStamp($entry->installed_date/1000);
-            $new_entry->installed_date = $date->format('Y-m-d');
-            $new_entry->architecture = $entry->architecture;
-            $new_entry->manufacturer_name = $entry->manufacturer_name;
-            $new_entry->software_id = $entry->software_id;
-            $installed_software[] = $new_entry;
         }
         $software_name = array_column($installed_software, 'software_name');
         array_multisort($software_name, SORT_ASC, $installed_software);

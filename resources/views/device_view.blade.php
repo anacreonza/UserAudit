@@ -79,7 +79,7 @@
         </div>
         <br>
         <div class="software_list">
-            <h4>Installed Software</h4>
+            <h4>Installed Software <span class="badge bg-info">{{$device_details->software_count}}</span></h4>
             <hr>
             <table class="software_table">
                 <colgroup>

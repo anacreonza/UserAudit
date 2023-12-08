@@ -546,6 +546,7 @@ class ComposerStaticInit693bd48c034daef84ea9cef3c91a2eb8
         'App\\Client' => __DIR__ . '/../..' . '/app/Client.php',
         'App\\Console\\Kernel' => __DIR__ . '/../..' . '/app/Console/Kernel.php',
         'App\\Device' => __DIR__ . '/../..' . '/app/Device.php',
+        'App\\Events\\UserLoggedIn' => __DIR__ . '/../..' . '/app/Events/UserLoggedIn.php',
         'App\\Exceptions\\Handler' => __DIR__ . '/../..' . '/app/Exceptions/Handler.php',
         'App\\File' => __DIR__ . '/../..' . '/app/File.php',
         'App\\Http\\Controllers\\Auth\\ConfirmPasswordController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/ConfirmPasswordController.php',
