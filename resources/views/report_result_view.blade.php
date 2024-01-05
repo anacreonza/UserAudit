@@ -24,14 +24,13 @@
         </div>
         <table class="table table-responsive">
             <thead class="table-light">
-                <th scope="col">Resource Name</th>
-                <th scope="col">Model</th>
+                <th scope="col"><a href="/report/run/{{$report->id}}?sortby=resource_name">Resource Name</a></th>
+                <th scope="col"><a href="/report/run/{{$report->id}}?sortby=model">Model</a></th>
                 <th scope="col">Logged On User</th>
-                <th scope="col">IP Address</th>
-                <th scope="col">Software Name</th>
-                <th scope="col">Software Version</th>
-                <th scope="col">User Name</th>
-                <th scope="col">Last Scan Date</th>
+                <th scope="col"><a href="/report/run/{{$report->id}}?sortby=ip_address">IP Address</a></th>
+                <th scope="col"><a href="/report/run/{{$report->id}}?sortby=software_name">Software Name</a></th>
+                <th scope="col"><a href="/report/run/{{$report->id}}?sortby=software_version">Software Version</a></th>
+                <th scope="col"><a href="/report/run/{{$report->id}}?sortby=last_successful_scan">Last Scan Date</a></th>
             </thead>
             <tbody>
                 @foreach ($response->computers as $computer)
@@ -42,7 +41,6 @@
                     <td><p class="small">{{$computer->ip_address}}</p></td>
                     <td><p class="small">{{$computer->software_name}}</p></td>
                     <td><p class="small">{{$computer->software_version}}</p></td>
-                    <td><p class="small">{{$computer->user_name}}</p></td>
                     <td><p class="small">{{$computer->relative_last_scan_date}}</p></td>
                 </tr>
                 @endforeach

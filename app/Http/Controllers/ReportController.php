@@ -89,6 +89,16 @@ class ReportController extends SearchController
                 $computer->human_readable_last_scan_date = $date;
                 $computer->relative_last_scan_date = $relative_date;
             }
+            $chosen_sort_criterion = $request->input('sortby');
+            if ($chosen_sort_criterion){
+                $resource_name = array_column($response->computers, $chosen_sort_criterion);
+                array_multisort($resource_name, SORT_ASC, $response->computers);
+            } else {
+                // Default sorting order - by most recent scan
+                $last_successful_scan_column = array_column($response->computers, "last_successful_scan");
+                array_multisort($last_successful_scan_column, SORT_DESC, $response->computers);
+
+            }
             $report->device_count = $response->total;
             $report->save();
             return view('report_result_view')->with('response', $response)->with('report', $report);
