@@ -31,10 +31,10 @@
                 <thead class="table-light">
                     <tr>
                         <th scope="col"><a href="/report/index/?reports_sortby=report_name">Report Name</a></th>
-                        <th scope="col"><a href="/report/index/?reports_sortby=system">System</a></th>
+                        <th scope="col"><a href="/report/index/?reports_sortby=report_type">Report Type</a></th>
                         <th scope="col"><a href="/report/index/?reports_sortby=endpoint">Endpoint</a></th>
                         <th scope="col"><a href="/report/index/?reports_sortby=created_at">Created At</a></th>
-                        <th scope="col"><a href="/report/index/?reports_sortby=device_count">Devices</a></th>
+                        <th scope="col"><a href="/report/index/?reports_sortby=device_count">Items</a></th>
                         <th scope="col"><a href="/report/index/?reports_sortby=action">Action</a></th>
                     </tr>
                 </thead>
@@ -42,10 +42,10 @@
                     @foreach ($reports as $report)
                     <tr>
                         <td><a href="/report/run/{{$report->id}}" class="small">{{$report->report_name}}</a></td>
-                        <td><p class="small">{{$report->system}}</p></td>
+                        <td><p class="small">{{$report->report_type}}</p></td>
                         <td><p class="small">{{$report->endpoint}}</p></td>
                         <td><p class="small">{{$report->created_at}}</p></td>
-                        <td><p class="small">{{$report->device_count}}</p></td>
+                        <td><p class="small">{{$report->count}}</p></td>
                         <td><a href="/report/edit/{{$report->id}}" class="small">Edit</a></td>
                     </tr>
                     @endforeach

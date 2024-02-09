@@ -43,15 +43,37 @@
             </div>
             <div class="device_form_row">
                 <div class="device_form_row_label">
-                    <label for="endpoint">Endpoint</label>
+                    <label for="system">Report Type</label>
                 </div>
-                <input name="endpoint" class="form-control" type="text" value="{{$report->endpoint}}">
+                <div class="device_form_row_input">
+                    <select class="form-control" name="report_type">
+                        <option value="me_devices_by_software_id">Manage Engine - Computers by software ID</option>
+                        {{-- <option value="me_devices_by_software_name">Manage Engine - Computers by software name</option> --}}
+                        <option value="me_software_by_software_name" selected>Manage Engine - Software packages by name</option>
+                    </select>
+                </div>
             </div>
             <div class="device_form_row">
                 <div class="device_form_row_label">
                     <label for="software_id">Software ID</label>
                 </div>
                 <input name="software_id" class="form-control" type="text" value="{{$report->software_id}}">
+            </div>
+            <div class="device_form_row">
+                <div class="device_form_row_label">
+                    <label for="software_name">Software Name</label>
+                </div>
+                <div class="device_form_row_input">
+                    <input class="form-control" type="text" name="software_name" id="software_name" value="{{$report->software_name}}">
+                </div>
+            </div>
+            <div class="device_form_row">
+                <div class="device_form_row_label">
+                    <label for="software_manufacturer">Software Manufacturer</label>
+                </div>
+                <div class="device_form_row_input">
+                    <input class="form-control" type="text" name="software_manufacturer" id="software_manufacturer" value="{{$report->software_manufacturer}}">
+                </div>
             </div>
             <div class="device_form_row">
                 <div class="device_form_row_label">

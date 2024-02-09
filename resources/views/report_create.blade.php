@@ -42,20 +42,22 @@
             </div>
             <div class="device_form_row">
                 <div class="device_form_row_label">
-                    <label for="system">System</label>
+                    <label for="system">Report Type</label>
                 </div>
                 <div class="device_form_row_input">
-                    <select class="form-control" name="system">
-                        <option value="Manage Engine">Manage Engine</option>
+                    <select class="form-control" name="report_type">
+                        <option value="me_devices_by_software_id">Manage Engine - Computers by software ID</option>
+                        {{-- <option value="me_devices_by_software_name">Manage Engine - Computers by software name</option> --}}
+                        <option value="me_software_by_software_name" selected>Manage Engine - Software packages by name</option>
                     </select>
                 </div>
             </div>
             <div class="device_form_row">
                 <div class="device_form_row_label">
-                    <label for="endpoint">Endpoint</label>
+                    <label for="software_name">Software Name</label>
                 </div>
                 <div class="device_form_row_input">
-                    <input class="form-control" type="text" name="endpoint" id="endpoint" value="{{ old('endpoint')}}">
+                    <input class="form-control" type="text" name="software_name" id="software_name" value="{{ old('software_name')}}">
                 </div>
             </div>
             <div class="device_form_row">
@@ -68,10 +70,18 @@
             </div>
             <div class="device_form_row">
                 <div class="device_form_row_label">
+                    <label for="software_manufacturer">Software Manufacturer</label>
+                </div>
+                <div class="device_form_row_input">
+                    <input class="form-control" type="text" name="software_manufacturer" id="software_manufacturer" value="{{ old('software_manufacturer')}}">
+                </div>
+            </div>
+            <div class="device_form_row">
+                <div class="device_form_row_label">
                     <label for="items_per_page">Items Per Page</label>
                 </div>
                 <div class="device_form_row_input">
-                    <input class="form-control" type="text" name="items_per_page" id="items_per_page" value="{{ old('items_per_page')}}">
+                    <input class="form-control" type="text" name="items_per_page" id="items_per_page" value="{{ old('items_per_page')}}" default="50">
                 </div>
             </div>
             <div>
