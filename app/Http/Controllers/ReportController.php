@@ -76,7 +76,13 @@ class ReportController extends SearchController
         $report = Report::findOrFail($id);
         return view('report_edit')->with('report', $report);
     }
-    private function get_computers_by_software_id(Request $request, $report){
+    private function get_computers_by_software_ids(Request $request, $report){
+        if (\gettype($report->software_ids) == "array"){
+            foreach ($ids as $id){
+                $result = $this->make_manage_engine_request($request, $report->endpoint, $report->items_per_page);
+            }
+        }
+
         $result = $this->make_manage_engine_request($request, $report->endpoint, $report->items_per_page);
         if ($result->status == "success"){
             $response = $result->message_response;
@@ -98,9 +104,9 @@ class ReportController extends SearchController
         $report->items_per_page = "500";
         $report->software_manufacturer = "";
         $report->endpoint = $this->generate_query_url($report);
-        $response = $this->get_computers_by_software_id($request, $report);
-        $report->count = $response->total;
-        return view('report_result_view')->with('response', $response)->with('report', $report);
+        $result = $this->get_computers_by_software_ids($request, $report);
+        $result->report = $report;
+        return view('report_result_view')->with('result', $result);
     }
     private function generate_relative_date($input_date){
         $epoch = substr($input_date, 0, -3);
@@ -112,37 +118,67 @@ class ReportController extends SearchController
     }
     public function run_report(Request $request, $id){
         $report = Report::where('id', $id)->first();
-        $result = $this->make_manage_engine_request($request, $report->endpoint, $report->items_per_page);
-        if ($result->status == "success"){
-            $response = $result->message_response;
+        $response = $this->make_manage_engine_request($request, $report->endpoint, $report->items_per_page);
+        if ($response->status == "success"){
+            $result = $response->message_response;
+            $packages = $result->software;
+            $software_name = $report->software_name;
+            $manufacterer_name = $report->manufacturer_name;
+            $filtered_software = [];
+            $installs_total = 0;
+            foreach($packages as $package){
+                $manufacturer_found = stripos($package->manufacturer_name, $report->software_manufacturer);
+                $software_found = stripos($package->display_name, $software_name);
+                if ($report->software_manufacturer == "all"){
+                    $manufacturer_found = true;
+                }
+                if (
+                    $software_found !== false &&
+                    $manufacturer_found !== false 
+                ){
+                    $filtered_software[] = $package;
+                    $installs_total += $package->network_installations;
+                }
+            }
+            $result->filtered_software = $filtered_software;
+            $result->installs_total = $installs_total;
+            $result->total = count($filtered_software);
             if ($report->report_type == "me_software_by_software_name"){
                 // dd($response);
-                foreach ($response->software as $package){
+                foreach ($result->software as $package){
                     $package->human_readable_detected_time = $this->generate_relative_date($package->detected_time);
                 };
-                $report->count = $response->total;
+                $report->count = $result->total;
                 $report->save();
             } else {
-                foreach ($response->computers as $computer){
+                foreach ($result->computers as $computer){
                     $computer->relative_last_scan_date = $this->generate_relative_date($computer->last_successful_scan);
                 }
                 $chosen_sort_criterion = $request->input('sortby');
                 if ($chosen_sort_criterion){
-                    $resource_name = array_column($response->computers, $chosen_sort_criterion);
-                    array_multisort($resource_name, SORT_ASC, $response->computers);
+                    $resource_name = array_column($result->computers, $chosen_sort_criterion);
+                    array_multisort($resource_name, SORT_ASC, $result->computers);
                 } else {
                     // Default sorting order - by most recent scan
-                    $last_successful_scan_column = array_column($response->computers, "last_successful_scan");
-                    array_multisort($last_successful_scan_column, SORT_DESC, $response->computers);
+                    $last_successful_scan_column = array_column($result->computers, "report_name");
+                    array_multisort($last_successful_scan_column, SORT_DESC, $result->computers);
                 }
                 $report->count = $response->total;
                 $report->save();
             }
-            return view('report_result_view')->with('response', $response)->with('report', $report);
+            $result->report = $report;
+            return $result;
         } else {
             Session::flash('message', 'Unable to generate report');
             return redirect("/reports/index");
         }
+    }
+    public function run_single_report(Request $request, $id){
+        $result = $this->run_report($request, $id);
+        return view('report_result_view')->with('result', $result);
+    }
+    public function run_multi_report(){
+
     }
     private function generate_query_url($report){
         switch ($report->report_type) {

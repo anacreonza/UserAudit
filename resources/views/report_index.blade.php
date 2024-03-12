@@ -34,7 +34,7 @@
                         <th scope="col"><a href="/report/index/?reports_sortby=report_type">Report Type</a></th>
                         <th scope="col"><a href="/report/index/?reports_sortby=endpoint">Endpoint</a></th>
                         <th scope="col"><a href="/report/index/?reports_sortby=created_at">Created At</a></th>
-                        <th scope="col"><a href="/report/index/?reports_sortby=device_count">Items</a></th>
+                        <th scope="col"><a href="/report/index/?reports_sortby=count">Items</a></th>
                         <th scope="col"><a href="/report/index/?reports_sortby=action">Action</a></th>
                     </tr>
                 </thead>

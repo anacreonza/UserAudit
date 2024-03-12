@@ -70,7 +70,7 @@ Route::get('/report/view/{id}', [ReportController::class, 'read']);
 Route::get('/report/delete/{id}', [ReportController::class, 'delete']);
 Route::get('/report/edit/{id}', [ReportController::class, 'edit']);
 Route::post('/report/search', [SearchController::class, 'filter_reports']);
-Route::get('/report/run/{id}', [ReportController::class, 'run_report']);
+Route::get('/report/run/{id}', [ReportController::class, 'run_single_report']);
 Route::get('/report/view_result', [ReportController::class, 'view_report_result']);
 Route::get('/report/find_computers_by_software_id', [ReportController::class, 'run_computers_by_software_id_report']);
 
