@@ -20,19 +20,22 @@
         <div class="viewer-title">
             <div>
                 <h3>{{$result->report->report_name}} <span class="badge bg-info"> {{$result->installs_total}}</span></h3>
-                <h4>Versions: <span class="badge bg-info">{{$result->total}}</span></h4>
+                <h4>Versions: <span class="badge bg-secondary">{{$result->total}}</span></h4>
             </div>
             <div class="list-links">
                 <p>Query Items Limit: {{$result->limit}} | Page Number: {{$result->page}}</p>
             </div>
         </div>
+        {{-- <div>
+            <a href="/report/find_computers_by_software_ids?software_ids=x" class="small">View combined report</a>
+        </div> --}}
         <table class="table table-responsive">
             <thead class="table-light">
                 <th scope="col"><a href="/report/run/{{$result->report->id}}?sortby=manufacturer_name">Software Manufacturer</a></th>
                 <th scope="col"><a href="/report/run/{{$result->report->id}}?sortby=software_name">Software Package</a></th>
                 <th scope="col"><a href="/report/run/{{$result->report->id}}?sortby=software_version">Software Version</a></th>
                 <th scope="col"><a href="/report/run/{{$result->report->id}}?sortby=managed_sw_id">Managed Software ID</a></th>
-                <th scope="col"><a href="/report/run/{{$result->report->id}}?sortby=human_readable_detected_time">Last Detected</a></th>
+                <th scope="col"><a href="/report/run/{{$result->report->id}}?sortby=human_readable_detected_time">First Detected</a></th>
                 <th scope="col"><a href="/report/run/{{$result->report->id}}?sortby=network_installations">Installations</a></th>
             </thead>
             <tbody>

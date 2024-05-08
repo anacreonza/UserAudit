@@ -76,24 +76,7 @@ class ReportController extends SearchController
         $report = Report::findOrFail($id);
         return view('report_edit')->with('report', $report);
     }
-    private function get_computers_by_software_ids(Request $request, $report){
-        if (\gettype($report->software_ids) == "array"){
-            foreach ($ids as $id){
-                $result = $this->make_manage_engine_request($request, $report->endpoint, $report->items_per_page);
-            }
-        }
-
-        $result = $this->make_manage_engine_request($request, $report->endpoint, $report->items_per_page);
-        if ($result->status == "success"){
-            $response = $result->message_response;
-            // dd($response);
-            foreach ($response->computers as $computer){
-                $computer->relative_last_scan_date = $this->generate_relative_date($computer->last_successful_scan);
-            }
-        }
-        return $response;
-    }
-    public function run_computers_by_software_id_report(Request $request){
+    private function get_computers_by_software_ids(Request $request){
         $report = new Report;
         $report->created_by = Auth::id();
         $report->report_type = "me_devices_by_software_id";
@@ -104,8 +87,37 @@ class ReportController extends SearchController
         $report->items_per_page = "500";
         $report->software_manufacturer = "";
         $report->endpoint = $this->generate_query_url($report);
-        $result = $this->get_computers_by_software_ids($request, $report);
-        $result->report = $report;
+        $result = new \stdClass();
+        if (\gettype($report->software_ids) == "array"){
+            $computers = [];
+            foreach ($ids as $id){
+                $response = $this->make_manage_engine_request($request, $report->endpoint, $report->items_per_page);
+                if ($response->status == "success"){
+                    $result = $response->message_response;
+                    array_merge(array_values($computers), array_values($result->computers));
+                }
+            }
+            $result->computers = $computers; // Replace last list of computers with combined array.
+        } else {
+            $response = $this->make_manage_engine_request($request, $report->endpoint, $report->items_per_page);
+            if ($response->status == "success"){
+                $result = $response->message_response;
+                $result->report = $report;
+                // dd($response);
+            }
+        }
+        foreach ($result->computers as $computer){
+            $computer->relative_last_scan_date = $this->generate_relative_date($computer->last_successful_scan);
+        }
+        // dd($result);
+        return $result;
+    }
+    public function run_computers_by_software_id_report(Request $request){
+        $result = $this->get_computers_by_software_ids($request);
+        return view('report_result_view')->with('result', $result);
+    }
+    public function run_computers_by_software_ids_report(Request $request){
+        $result = $this->get_computers_by_software_ids($request);
         return view('report_result_view')->with('result', $result);
     }
     private function generate_relative_date($input_date){
@@ -144,10 +156,16 @@ class ReportController extends SearchController
             $result->installs_total = $installs_total;
             $result->total = count($filtered_software);
             if ($report->report_type == "me_software_by_software_name"){
-                // dd($response);
+                $software_ids = [];
                 foreach ($result->software as $package){
                     $package->human_readable_detected_time = $this->generate_relative_date($package->detected_time);
+                    $software_ids[] = $package->managed_sw_id;
                 };
+                $computers = [];
+                foreach ($software_ids as $id){
+
+                }
+                $report->installs = $installs_total;
                 $report->count = $result->total;
                 $report->save();
             } else {

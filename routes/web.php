@@ -73,6 +73,7 @@ Route::post('/report/search', [SearchController::class, 'filter_reports']);
 Route::get('/report/run/{id}', [ReportController::class, 'run_single_report']);
 Route::get('/report/view_result', [ReportController::class, 'view_report_result']);
 Route::get('/report/find_computers_by_software_id', [ReportController::class, 'run_computers_by_software_id_report']);
+Route::get('/report/find_computers_by_software_ids', [ReportController::class, 'run_computers_by_software_ids_report']);
 
 Auth::routes();
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
